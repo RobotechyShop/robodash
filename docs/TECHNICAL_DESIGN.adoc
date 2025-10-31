@@ -1,0 +1,121 @@
+= RoboDash – Technical Design
+:sectnums:
+:toclevels: 3
+
+== Overview
+
+RoboDash is a custom motorsport dashboard built on a Raspberry Pi 5 that reads engine and vehicle data from an ECU Master ECU over CAN and renders gauges and alerts (Qt/QML first, LVGL as an option) on a compact HDMI touchscreen. It also supports a bench/simulator mode using Windows or Linux PCs for development without the car or ECU connected.
+
+=== Goals
+* Low-latency, sunlight-readable gauges (RPM, temps, pressures, lambda, battery) with alerts and shift lights.
+* Native ECU Master integration (Classic/Black); adaptable to others via DBC remaps.
+* Robust power/wiring for motorsport (isolation, fuses, star-ground).
+* Developer-friendly: reproducible setup, CAN replay/simulation, unit and integration tests.
+
+== System Architecture
+
+Ign-switched 12V
+ ├─► 12V→5V Buck 8–10 A ─► Raspberry Pi 5 (USB-C 5 V)
+ │                           ├─► HDMI + USB Touch → Display
+ │                           └─► (optional) USB → MCU (shiftlights)
+ └─► CAN HAT (isolated 12 V)
+         ▲
+         │
+   ECU Master (EMU Black/Classic)
+         CAN H / CAN L
+
+== Hardware
+
+* Raspberry Pi 5 (4–8 GB) + microSD (32–64 GB) or USB SSD  
+* HDMI touchscreen (7–11 in FHD, micro-HDMI → HDMI + USB for touch)  
+* Isolated dual-channel CAN-FD HAT (MCP2518FD class)  
+* Automotive buck converter 12 V→ 5 V ≥ 6 A (8–10 A preferred)  
+* Fuses: 7.5–10 A (buck), 1 A (HAT)  
+* Twisted-pair shielded CAN cable (22 AWG)  
+* ECU Master loom or DB9 CAN connector  
+
+Wiring notes:
+* Twisted pair 1.5–3 m; shield grounded at one end (ECU side).
+* 120 Ω termination both ends (ECU + HAT).
+* Star ground: tie ECU/Pi/HAT grounds at one point.
+* Use ≥ 18 AWG for 5 V lines to minimize drop.
+
+== Software Architecture
+
+* `can-bridge` (Python) — reads SocketCAN, decodes DBC with cantools, publishes JSON via ZeroMQ or WebSocket.
+* `dash-ui` (Qt/QML or PySide) — renders gauges, warnings, and shift bar (30–60 fps).
+* `sim-tools` — CAN frame generator and log replay (SavvyCAN or can-utils).
+* `healthd` (optional) — monitors CPU temp, FPS, and CAN errors.
+* `io-rt` (optional MCU) — shift-lights and buzzer via Teensy or ESP32.
+
+Data flow:
+
+SocketCAN (can0) → python-can → cantools (DBC) → JSON → Qt/QML UI → logs (NDJSON for replay)
+
+Repo layout:
+
+robodash/
+ ├─ docs/TECHNICAL_DESIGN.adoc
+ ├─ firmware/
+ ├─ hw/
+ ├─ scripts/
+ ├─ src/
+ │   ├─ can-bridge/
+ │   └─ dash-ui/
+ └─ tests/
+
+== ECU Integration
+
+* Classic CAN 1 Mbit/s (default for ECU Master)
+* DBC maps signal IDs, scaling, endianness via cantools
+* ECU Master EMU Black/Classic CANH/CANL wiring per manual
+* Do not power Pi from ECU; use buck converter
+
+== Dependencies (Pi 5 – Bookworm 64-bit)
+
+sudo apt update
+sudo apt install -y can-utils python3-pip
+pip install python-can cantools pyzmq
+sudo apt install -y qtbase5-dev qml-module-qtquick-controls2 qml-module-qtcharts
+# or: pip install PySide6
+
+Enable SPI CAN overlay:
+
+sudo nano /boot/firmware/config.txt
+dtoverlay=mcp251xfd,spi0-0,clock-frequency=40000000
+
+Start CAN bus:
+
+sudo ip link set can0 up type can bitrate 1000000
+
+== Build & Run
+
+./scripts/setup_pi.sh
+./scripts/can_bringup.sh
+python3 src/can-bridge/bridge.py --iface can0 --dbc ecu_master.dbc
+python3 src/dash-ui/main.py
+
+== Bench Simulation (no ECU)
+
+sudo ip link set can0 up type can bitrate 1000000
+cansend can0 360#3412000000000000
+canplayer -I logs/emu_black_sample.log vcan0=can0
+
+== Safety and Reliability
+
+* Read-only root or overlay filesystem.
+* systemd watchdogs for bridge and UI.
+* EMI protection (ferrites, cable routing).
+* Clean shutdown on ignition-off (UPS HAT optional).
+
+== Acceptance Criteria (v0)
+
+* UI ≥ 30 fps, < 50 ms latency.
+* CAN errors < 0.1 % over 30 min bench.
+* Boot to dash ≤ 20 s.
+
+== Future Work
+
+* Shift-lights MCU integration.
+* Lap timing / GPS overlay.
+* OTA updates and config UI.
