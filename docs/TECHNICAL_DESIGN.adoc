@@ -14,25 +14,86 @@ RoboDash is a custom motorsport dashboard built on a Raspberry Pi 5 that reads e
 
 == System Architecture
 
-Ign-switched 12V
- ├─► 12V→5V Buck 8–10 A ─► Raspberry Pi 5 (USB-C 5 V)
- │                           ├─► HDMI + USB Touch → Display
- │                           └─► (optional) USB → MCU (shiftlights)
- └─► CAN HAT (isolated 12 V)
-         ▲
-         │
-   ECU Master (EMU Black/Classic)
-         CAN H / CAN L
+[mermaid]
+----
+graph LR
+    IGN[Ign-switched 12V] --> BUCK[12V→5V Buck<br/>8-10A]
+    IGN --> CANHAT[CAN HAT<br/>isolated 12V]
+
+    BUCK --> RPI[Raspberry Pi 5<br/>USB-C 5V]
+
+    RPI --> HDMI[HDMI + USB Touch]
+    HDMI --> DISPLAY[Display]
+
+    RPI --> MCU[MCU<br/>shiftlights]
+    MCU -.optional.-> RPI
+
+    ECU[ECU Master<br/>EMU Black/Classic] -->|CAN H/L| CANHAT
+    CANHAT --> RPI
+
+    style IGN fill:#ffe6e6
+    style ECU fill:#e6f3ff
+    style RPI fill:#e6ffe6
+    style DISPLAY fill:#fff9e6
+----
 
 == Hardware
 
-* Raspberry Pi 5 (4–8 GB) + microSD (32–64 GB) or USB SSD  
-* HDMI touchscreen (7–11 in FHD, micro-HDMI → HDMI + USB for touch)  
-* Isolated dual-channel CAN-FD HAT (MCP2518FD class)  
-* Automotive buck converter 12 V→ 5 V ≥ 6 A (8–10 A preferred)  
-* Fuses: 7.5–10 A (buck), 1 A (HAT)  
-* Twisted-pair shielded CAN cable (22 AWG)  
-* ECU Master loom or DB9 CAN connector  
+.Component List
+[cols="3,2,2,1", options="header"]
+|===
+|Component |Specification |Supplier |Approx. Cost
+
+|ECU Master EMU Black
+|Engine management unit with CAN output
+|https://motorsportsupplies.co.uk/products/ecumaster-emu-black[Motorsport Supplies]
+|£800
+
+|Raspberry Pi 5
+|4–8 GB RAM
+|https://thepihut.com/products/raspberry-pi-5[The Pi Hut]
+|£55–£80
+
+|HDMI Touchscreen
+|7–11" FHD, micro-HDMI + USB touch
+|https://www.amazon.co.uk/dp/B0DFW5H1SK[Amazon UK]
+|£80–£150
+
+|Isolated CAN-FD HAT
+|MCP2518FD dual-channel
+|https://www.amazon.co.uk/dp/B0DSPYPKRG[Amazon UK]
+|£30–£50
+
+|Automotive Buck Converter
+|12V → 5V, 8–10A
+|https://www.amazon.co.uk/gp/product/B07YQTMQTR[Amazon UK]
+|£10–£20
+
+|MicroSD Card
+|32–64 GB Class 10/A2 (or USB SSD)
+|https://thepihut.com/collections/raspberry-pi-sd-cards-and-adapters[The Pi Hut]
+|£8–£15
+
+|Power Supply (Dev/Bench)
+|USB-C PD 5V/5A for Pi 5
+|https://thepihut.com/products/raspberry-pi-27w-usb-c-power-supply[The Pi Hut]
+|£10
+
+|Fuses
+|7.5–10A (buck), 1A (HAT)
+|Local auto parts store
+|£5
+
+|CAN Cable
+|Twisted-pair shielded, 22 AWG
+|https://www.amazon.co.uk/s?k=can+bus+cable[Amazon UK]
+|£10
+
+|CAN Connector
+|DB9 or ECU Master loom connector
+|https://motorsportsupplies.co.uk/[Motorsport Supplies]
+|£15
+|===
 
 Wiring notes:
 * Twisted pair 1.5–3 m; shield grounded at one end (ECU side).
@@ -50,7 +111,19 @@ Wiring notes:
 
 Data flow:
 
-SocketCAN (can0) → python-can → cantools (DBC) → JSON → Qt/QML UI → logs (NDJSON for replay)
+[mermaid]
+----
+graph LR
+    CAN[SocketCAN<br/>can0] --> PYCAN[python-can]
+    PYCAN --> CANTOOLS[cantools<br/>DBC decode]
+    CANTOOLS --> JSON[JSON]
+    JSON --> UI[Qt/QML UI]
+    UI --> LOGS[NDJSON logs<br/>for replay]
+
+    style CAN fill:#e6f3ff
+    style UI fill:#e6ffe6
+    style LOGS fill:#fff9e6
+----
 
 Repo layout:
 
@@ -73,33 +146,48 @@ robodash/
 
 == Dependencies (Pi 5 – Bookworm 64-bit)
 
+[source,bash]
+----
 sudo apt update
 sudo apt install -y can-utils python3-pip
 pip install python-can cantools pyzmq
 sudo apt install -y qtbase5-dev qml-module-qtquick-controls2 qml-module-qtcharts
 # or: pip install PySide6
+----
 
 Enable SPI CAN overlay:
 
+[source,bash]
+----
 sudo nano /boot/firmware/config.txt
 dtoverlay=mcp251xfd,spi0-0,clock-frequency=40000000
+----
 
 Start CAN bus:
 
+[source,bash]
+----
 sudo ip link set can0 up type can bitrate 1000000
+----
 
 == Build & Run
 
+[source,bash]
+----
 ./scripts/setup_pi.sh
 ./scripts/can_bringup.sh
 python3 src/can-bridge/bridge.py --iface can0 --dbc ecu_master.dbc
 python3 src/dash-ui/main.py
+----
 
 == Bench Simulation (no ECU)
 
+[source,bash]
+----
 sudo ip link set can0 up type can bitrate 1000000
 cansend can0 360#3412000000000000
 canplayer -I logs/emu_black_sample.log vcan0=can0
+----
 
 == Safety and Reliability
 
