@@ -57,7 +57,7 @@ class DigitalDisplay(BaseWidget):
         # Font sizes - scale to available space
         label_font_size = 16
         unit_font_size = 20
-        value_font_size = min(150, int(value_area_height * self._font_size_ratio))
+        value_font_size = min(200, int(value_area_height * self._font_size_ratio))
 
         # Get value color
         value_color = self.get_value_color()
@@ -90,9 +90,9 @@ class DigitalDisplay(BaseWidget):
         # Calculate the center position for value
         value_center_y = rect.top() + label_space + (value_area_height // 2)
 
-        # If showing unit, shift value up slightly to make room for unit below
+        # If showing unit, shift value up to make room for unit below
         if self._show_unit and self._unit_label:
-            value_center_y -= 15  # Shift up to make room for unit
+            value_center_y -= 20  # Shift up for unit space
 
         value_rect = QRect(
             rect.left(),
@@ -102,7 +102,7 @@ class DigitalDisplay(BaseWidget):
         )
         painter.drawText(value_rect, Qt.AlignCenter, value_text)
 
-        # Draw unit directly below value (close together)
+        # Draw unit directly below value
         if self._show_unit and self._unit_label:
             unit_font = QFont(font_name, unit_font_size)
             painter.setFont(unit_font)
@@ -110,7 +110,7 @@ class DigitalDisplay(BaseWidget):
 
             unit_rect = QRect(
                 rect.left(),
-                value_rect.bottom() - 5,  # Just below the value
+                value_rect.bottom(),  # Directly below value
                 rect.width(),
                 unit_space
             )
@@ -150,7 +150,7 @@ class SpeedDisplay(DigitalDisplay):
         self.set_unit("mph")
         self.set_range(0, 200)
         self.set_format("{:.0f}")
-        self._font_size_ratio = 0.85  # Larger for better visibility
+        self._font_size_ratio = 1.0  # Maximum size for best visibility
 
     def get_value_color(self) -> QColor:
         """Speed always uses white for maximum visibility."""

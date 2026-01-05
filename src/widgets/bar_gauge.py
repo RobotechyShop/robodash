@@ -253,7 +253,6 @@ class RPMBar(BarGauge):
         self.set_range(0, 8000)
         self.set_label("RPM")
         self._show_value = False  # Value shown elsewhere
-        self._bar_height = 180  # Much taller for 720p
 
         # More granular: 80 segments = 100 RPM each
         self._segment_count = 80
@@ -280,10 +279,13 @@ class RPMBar(BarGauge):
         padding = 10
         bar_width = rect.width() - padding * 2
 
+        # Reserve space at bottom for RPM number markers
+        marker_space = 35  # Space for 1-8 digits at bottom
+
         # Min and max bar heights (bars grow taller toward redline)
-        # Leave more room at bottom for RPM numbers
-        min_bar_height = 50
-        max_bar_height = self._bar_height - 50
+        available_height = rect.height() - marker_space - 10
+        min_bar_height = 40
+        max_bar_height = available_height - 20
 
         active_segments = int(self._segment_count * self.value_percent)
         segment_width = bar_width / self._segment_count
@@ -296,7 +298,7 @@ class RPMBar(BarGauge):
             bar_height = min_bar_height + (max_bar_height - min_bar_height) * progress
 
             seg_x = padding + i * segment_width + segment_gap / 2
-            seg_y = rect.bottom() - bar_height - 35  # More space at bottom for numbers
+            seg_y = rect.height() - marker_space - bar_height  # Position from marker area
             seg_w = segment_width - segment_gap
             seg_h = bar_height
 
@@ -324,17 +326,18 @@ class RPMBar(BarGauge):
             painter.setBrush(QBrush(QColor(color)))
             painter.drawRoundedRect(seg_rect, 2, 2)
 
-        # Draw RPM markers below with more spacing from bar
+        # Draw RPM markers in reserved space at bottom
         painter.setPen(QColor(self.theme.TEXT_SECONDARY))
         font_name = get_custom_font()
         font = QFont(font_name, 14)
         painter.setFont(font)
 
-        marker_y = rect.bottom() - 8  # Moved down for more space from bar
+        # Position markers in the reserved space at bottom
+        marker_y = rect.height() - marker_space + 5
         for rpm in range(0, 9000, 1000):
             x = padding + (rpm / 8000) * bar_width
             painter.drawText(
-                QRectF(x - 20, marker_y, 40, 20),
+                QRectF(x - 18, marker_y, 36, 25),
                 Qt.AlignCenter,
                 str(rpm // 1000)
             )
@@ -359,9 +362,10 @@ class FuelBar(BaseWidget):
         self.setMinimumSize(300, 60)
 
     def paintEvent(self, event) -> None:
-        """Paint the fuel bar gauge."""
+        """Paint the fuel bar gauge with centered percentage overlay."""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.TextAntialiasing)
 
         rect = self.rect()
 
@@ -369,33 +373,31 @@ class FuelBar(BaseWidget):
         painter.fillRect(rect, QColor("#0A0A0A"))
 
         padding = 10
-        label_height = 25
-        label_margin = 10  # Margin under FUEL text
-        value_width = 80  # Wider to fit "100%"
-
-        # Label at top
-        painter.setPen(QColor(self.theme.TEXT_SECONDARY))
+        label_height = 20
         font_name = get_custom_font()
-        font = QFont(font_name, 14)
+
+        # Label at top left
+        painter.setPen(QColor(self.theme.TEXT_SECONDARY))
+        font = QFont(font_name, 12)
         painter.setFont(font)
         painter.drawText(
-            QRectF(padding, 5, 100, label_height),
+            QRectF(padding, 2, 60, label_height),
             Qt.AlignLeft | Qt.AlignVCenter,
             self._label
         )
 
-        # Bar area (with margin under label)
+        # Bar area - full width
         bar_rect = QRectF(
             padding,
-            label_height + label_margin,
-            rect.width() - padding * 2 - value_width - 10,
-            rect.height() - label_height - label_margin - 10
+            label_height + 5,
+            rect.width() - padding * 2,
+            rect.height() - label_height - 10
         )
 
         # Draw bar background
         painter.setPen(Qt.NoPen)
         painter.setBrush(QBrush(QColor("#222222")))
-        painter.drawRoundedRect(bar_rect, 4, 4)
+        painter.drawRoundedRect(bar_rect, 6, 6)
 
         # Draw fill based on percentage
         fill_width = bar_rect.width() * self.value_percent
@@ -407,7 +409,7 @@ class FuelBar(BaseWidget):
                 bar_rect.height()
             )
 
-            # Color based on level (configurable: 10% red, 25% amber)
+            # Color based on level (10% red, 25% amber)
             if self._value <= 10:
                 color = self.theme.CRITICAL
             elif self._value <= 25:
@@ -416,23 +418,17 @@ class FuelBar(BaseWidget):
                 color = self.theme.ROBOTECHY_GREEN
 
             painter.setBrush(QBrush(QColor(color)))
-            painter.drawRoundedRect(fill_rect, 4, 4)
+            painter.drawRoundedRect(fill_rect, 6, 6)
 
-        # Draw percentage value on right
-        value_font = QFont(font_name, 22)
+        # Draw percentage in center of bar - match other gauge sizes
+        value_font = QFont(font_name, 38)
         value_font.setBold(True)
         painter.setFont(value_font)
-        painter.setPen(self.get_value_color())
+        painter.setPen(QColor("#FFFFFF"))
 
-        value_rect = QRectF(
-            rect.width() - value_width - padding,
-            label_height + label_margin,
-            value_width,
-            rect.height() - label_height - label_margin - 10
-        )
         painter.drawText(
-            value_rect,
-            Qt.AlignRight | Qt.AlignVCenter,
+            bar_rect,
+            Qt.AlignCenter,
             f"{int(self._value)}%"
         )
 

@@ -118,24 +118,26 @@ class ValueSmoother:
     """
 
     # Default alpha values per channel type
+    # Lower alpha = more smoothing (slower response, easier to read)
     DEFAULT_ALPHAS: Dict[str, float] = field(default_factory=lambda: {
-        # Fast response (gauges need quick feedback)
-        "rpm": 0.5,
-        "speed": 0.4,
-        "tps": 0.6,
-        "boost_pressure": 0.4,
+        # Readable response (heavily smoothed for easy reading)
+        "rpm": 0.08,
+        "speed": 0.05,  # Very smooth for readability
+        "tps": 0.3,
+        "boost_pressure": 0.2,
 
         # Medium response
-        "afr": 0.3,
-        "oil_pressure": 0.3,
-        "battery_voltage": 0.3,
+        "afr": 0.15,
+        "oil_pressure": 0.15,
+        "battery_voltage": 0.15,
+        "fuel_level": 0.1,
 
         # Slow response (temperatures change slowly anyway)
-        "coolant_temp": 0.15,
-        "oil_temp": 0.15,
-        "intake_temp": 0.2,
-        "egt1": 0.2,
-        "egt2": 0.2,
+        "coolant_temp": 0.1,
+        "oil_temp": 0.1,
+        "intake_temp": 0.1,
+        "egt1": 0.1,
+        "egt2": 0.1,
     })
 
     def __post_init__(self):
@@ -256,6 +258,7 @@ class ValueSmoother:
             injector_duty=self.update("injector_duty", state.injector_duty),
             ignition_angle=self.update("ignition_angle", state.ignition_angle),
             battery_voltage=self.update("battery_voltage", state.battery_voltage),
+            fuel_level=self.update("fuel_level", state.fuel_level),
             flags=state.flags,
             warnings=state.warnings,
             timestamp=state.timestamp,

@@ -119,19 +119,19 @@ class RaceLayout(BaseLayout):
         self._rpm_display.set_label("RPM")
         self._rpm_display.set_range(0, 8000)
         self._rpm_display.set_format("{:.0f}")
-        self._rpm_display.set_font_size_ratio(0.5)
+        self._rpm_display.set_font_size_ratio(0.8)  # Bigger font
         self._rpm_display.set_show_unit(False)
-        self._rpm_display.setFixedWidth(200)
-        self._rpm_display.setFixedHeight(70)
+        self._rpm_display.setFixedWidth(280)  # Wider for bigger digits
+        self._rpm_display.setFixedHeight(90)  # Taller for bigger digits
         rpm_row.addWidget(self._rpm_display)
         self.register_widget("rpm_display", self._rpm_display)
 
         rpm_row.addStretch()
         layout.addLayout(rpm_row)
 
-        # RPM bar - twice as tall
+        # RPM bar - 50% taller
         self._rpm_bar = RPMBar()
-        self._rpm_bar.setMinimumHeight(250)  # Twice as tall
+        self._rpm_bar.setMinimumHeight(375)  # 50% taller
         layout.addWidget(self._rpm_bar, stretch=1)
         self.register_widget("rpm_bar", self._rpm_bar)
 

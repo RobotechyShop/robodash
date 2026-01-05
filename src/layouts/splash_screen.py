@@ -160,7 +160,7 @@ class SplashScreen(QWidget):
         center_x: int,
         center_y: int
     ) -> None:
-        """Draw a placeholder R if logo file not found."""
+        """Draw a placeholder R with shadow if logo file not found."""
         # Try to use custom font if available
         app = QApplication.instance()
         custom_font = app.property("custom_font") if app else None
@@ -170,12 +170,18 @@ class SplashScreen(QWidget):
         font = QFont(font_name, 180)
         font.setBold(True)
         painter.setFont(font)
-        painter.setPen(QColor(self._theme.ROBOTECHY_GREEN))
 
         text_rect = self.rect()
         text_rect.moveCenter(self.rect().center())
         text_rect.moveTop(center_y - 120)
 
+        # Draw white shadow (offset slightly)
+        shadow_rect = text_rect.translated(4, 4)
+        painter.setPen(QColor("#FFFFFF"))
+        painter.drawText(shadow_rect, Qt.AlignHCenter | Qt.AlignTop, "R")
+
+        # Draw green R on top
+        painter.setPen(QColor(self._theme.ROBOTECHY_GREEN))
         painter.drawText(text_rect, Qt.AlignHCenter | Qt.AlignTop, "R")
 
     def keyPressEvent(self, event) -> None:
