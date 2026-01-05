@@ -48,16 +48,16 @@ class DigitalDisplay(BaseWidget):
         painter.fillRect(rect, QColor("#0A0A0A"))
 
         # Reserve space for label and unit
-        label_space = 30 if self._show_label and self._label else 0
-        unit_space = 35 if self._show_unit and self._unit_label else 0
+        label_space = 25 if self._show_label and self._label else 0
+        unit_space = 30 if self._show_unit and self._unit_label else 0
 
         # Calculate remaining space for value
         value_area_height = rect.height() - label_space - unit_space
 
         # Font sizes - scale to available space
-        label_font_size = 16
-        unit_font_size = 20
-        value_font_size = min(200, int(value_area_height * self._font_size_ratio))
+        label_font_size = 14
+        unit_font_size = 18
+        value_font_size = min(180, max(30, int(value_area_height * self._font_size_ratio)))
 
         # Get value color
         value_color = self.get_value_color()
@@ -73,13 +73,13 @@ class DigitalDisplay(BaseWidget):
 
             label_rect = QRect(
                 rect.left(),
-                rect.top() + 5,
+                rect.top() + 2,
                 rect.width(),
                 label_space
             )
             painter.drawText(label_rect, Qt.AlignHCenter | Qt.AlignTop, self._label)
 
-        # Draw main value (center area)
+        # Draw main value in center
         value_font = QFont(font_name, value_font_size)
         value_font.setBold(True)
         painter.setFont(value_font)
@@ -87,22 +87,16 @@ class DigitalDisplay(BaseWidget):
 
         value_text = self.get_formatted_value()
 
-        # Calculate the center position for value
-        value_center_y = rect.top() + label_space + (value_area_height // 2)
-
-        # If showing unit, shift value up to make room for unit below
-        if self._show_unit and self._unit_label:
-            value_center_y -= 20  # Shift up for unit space
-
+        # Value occupies middle section
         value_rect = QRect(
             rect.left(),
-            value_center_y - value_font_size // 2,
+            rect.top() + label_space,
             rect.width(),
-            value_font_size + 10
+            value_area_height
         )
         painter.drawText(value_rect, Qt.AlignCenter, value_text)
 
-        # Draw unit directly below value
+        # Draw unit at bottom
         if self._show_unit and self._unit_label:
             unit_font = QFont(font_name, unit_font_size)
             painter.setFont(unit_font)
@@ -110,11 +104,11 @@ class DigitalDisplay(BaseWidget):
 
             unit_rect = QRect(
                 rect.left(),
-                value_rect.bottom(),  # Directly below value
+                rect.bottom() - unit_space,
                 rect.width(),
                 unit_space
             )
-            painter.drawText(unit_rect, Qt.AlignHCenter | Qt.AlignTop, self._unit_label)
+            painter.drawText(unit_rect, Qt.AlignHCenter | Qt.AlignVCenter, self._unit_label)
 
         painter.end()
 

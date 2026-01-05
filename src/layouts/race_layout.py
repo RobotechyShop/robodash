@@ -104,14 +104,14 @@ class RaceLayout(BaseLayout):
         layout.setContentsMargins(10, 5, 10, 5)
         layout.setSpacing(5)
 
-        # Speed display - very large and centered
+        # Speed display - large and centered (fits in 720p)
         self._speed_display = SpeedDisplay()
-        self._speed_display.setMinimumHeight(350)
-        self._speed_display._font_size_ratio = 0.8  # Make speed much bigger
+        self._speed_display.setMinimumHeight(280)
+        self._speed_display.setMaximumHeight(320)
         layout.addWidget(self._speed_display, stretch=2)
         self.register_widget("speed", self._speed_display)
 
-        # RPM value - smaller, above the bar
+        # RPM value - above the bar
         rpm_row = QHBoxLayout()
         rpm_row.addStretch()
 
@@ -119,19 +119,20 @@ class RaceLayout(BaseLayout):
         self._rpm_display.set_label("RPM")
         self._rpm_display.set_range(0, 8000)
         self._rpm_display.set_format("{:.0f}")
-        self._rpm_display.set_font_size_ratio(0.8)  # Bigger font
+        self._rpm_display.set_font_size_ratio(0.7)
         self._rpm_display.set_show_unit(False)
-        self._rpm_display.setFixedWidth(280)  # Wider for bigger digits
-        self._rpm_display.setFixedHeight(90)  # Taller for bigger digits
+        self._rpm_display.setFixedWidth(200)
+        self._rpm_display.setFixedHeight(70)
         rpm_row.addWidget(self._rpm_display)
         self.register_widget("rpm_display", self._rpm_display)
 
         rpm_row.addStretch()
         layout.addLayout(rpm_row)
 
-        # RPM bar - 50% taller
+        # RPM bar with markers
         self._rpm_bar = RPMBar()
-        self._rpm_bar.setMinimumHeight(375)  # 50% taller
+        self._rpm_bar.setMinimumHeight(280)
+        self._rpm_bar.setMaximumHeight(320)
         layout.addWidget(self._rpm_bar, stretch=1)
         self.register_widget("rpm_bar", self._rpm_bar)
 
@@ -200,7 +201,7 @@ class RaceLayout(BaseLayout):
 
         # Fuel Level - with visual bar (at bottom, spans both columns)
         self._fuel_level = FuelBar()
-        self._fuel_level.setMinimumHeight(80)
+        self._fuel_level.setMinimumHeight(100)  # Taller for bigger text
         layout.addWidget(self._fuel_level, 3, 0, 1, 2)  # Row 3, span both columns
         self.register_widget("fuel_level", self._fuel_level)
 

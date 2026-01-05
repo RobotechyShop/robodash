@@ -420,8 +420,8 @@ class FuelBar(BaseWidget):
             painter.setBrush(QBrush(QColor(color)))
             painter.drawRoundedRect(fill_rect, 6, 6)
 
-        # Draw percentage in center of bar - match other gauge sizes
-        value_font = QFont(font_name, 38)
+        # Draw percentage in center of bar - same size as other gauges
+        value_font = QFont(font_name, 36)
         value_font.setBold(True)
         painter.setFont(value_font)
         painter.setPen(QColor("#FFFFFF"))
