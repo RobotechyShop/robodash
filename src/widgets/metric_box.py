@@ -114,7 +114,7 @@ class MetricBox(BaseWidget):
         )
         painter.drawText(label_rect, Qt.AlignLeft | Qt.AlignTop, self._label)
 
-        # Draw value
+        # Draw value - right aligned
         value_font = QFont("Roboto", value_font_size)
         value_font.setBold(True)
         painter.setFont(value_font)
@@ -128,7 +128,7 @@ class MetricBox(BaseWidget):
             inner_rect.width(),
             value_height * 0.7
         )
-        painter.drawText(value_rect, Qt.AlignLeft | Qt.AlignVCenter, value_text)
+        painter.drawText(value_rect, Qt.AlignRight | Qt.AlignVCenter, value_text)
 
         # Draw unit
         if self._unit_label:

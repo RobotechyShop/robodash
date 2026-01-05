@@ -29,7 +29,7 @@ from .base_layout import BaseLayout
 from ..data.models import VehicleState
 from ..widgets import (
     DigitalDisplay, GearIndicator, SpeedDisplay,
-    RPMBar, MetricBox
+    RPMBar, MetricBox, FuelBar
 )
 from ..core.constants import SCREEN_WIDTH, SCREEN_HEIGHT
 
@@ -75,7 +75,7 @@ class RaceLayout(BaseLayout):
     def _create_left_panel(self) -> QWidget:
         """Create left panel with gear, boost, and status."""
         panel = QFrame()
-        panel.setFixedWidth(200)
+        panel.setFixedWidth(280)  # Wider left panel
         layout = QVBoxLayout(panel)
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(15)
@@ -111,13 +111,14 @@ class RaceLayout(BaseLayout):
         """Create center panel with speed prominently displayed and RPM bar."""
         panel = QFrame()
         layout = QVBoxLayout(panel)
-        layout.setContentsMargins(10, 10, 10, 10)
-        layout.setSpacing(10)
+        layout.setContentsMargins(10, 5, 10, 5)
+        layout.setSpacing(5)
 
-        # Speed display - large and centered
+        # Speed display - very large and centered
         self._speed_display = SpeedDisplay()
-        self._speed_display.setMinimumHeight(300)
-        layout.addWidget(self._speed_display, stretch=3)
+        self._speed_display.setMinimumHeight(350)
+        self._speed_display._font_size_ratio = 0.8  # Make speed much bigger
+        layout.addWidget(self._speed_display, stretch=2)
         self.register_widget("speed", self._speed_display)
 
         # RPM value - smaller, above the bar
@@ -128,20 +129,20 @@ class RaceLayout(BaseLayout):
         self._rpm_display.set_label("RPM")
         self._rpm_display.set_range(0, 8000)
         self._rpm_display.set_format("{:.0f}")
-        self._rpm_display.set_font_size_ratio(0.4)
+        self._rpm_display.set_font_size_ratio(0.5)
         self._rpm_display.set_show_unit(False)
         self._rpm_display.setFixedWidth(200)
-        self._rpm_display.setFixedHeight(80)
+        self._rpm_display.setFixedHeight(70)
         rpm_row.addWidget(self._rpm_display)
         self.register_widget("rpm_display", self._rpm_display)
 
         rpm_row.addStretch()
         layout.addLayout(rpm_row)
 
-        # RPM bar - tall, extends to bottom
+        # RPM bar - twice as tall
         self._rpm_bar = RPMBar()
-        self._rpm_bar.setMinimumHeight(200)
-        layout.addWidget(self._rpm_bar, stretch=2)
+        self._rpm_bar.setMinimumHeight(250)  # Twice as tall
+        layout.addWidget(self._rpm_bar, stretch=1)
         self.register_widget("rpm_bar", self._rpm_bar)
 
         return panel
@@ -149,7 +150,7 @@ class RaceLayout(BaseLayout):
     def _create_right_panel(self) -> QWidget:
         """Create right panel with secondary metrics (wider)."""
         panel = QFrame()
-        panel.setFixedWidth(500)  # Wider panel
+        panel.setFixedWidth(600)  # 50% wider panel
         layout = QGridLayout(panel)
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(12)
@@ -195,16 +196,13 @@ class RaceLayout(BaseLayout):
         self._battery.set_decimals(1)
         self._battery.set_unit("V")
         self._battery.set_thresholds(warning=15.0, warning_low=12.0)
-        layout.addWidget(self._battery, 2, 0)
+        layout.addWidget(self._battery, 2, 0, 1, 2)  # Span both columns
         self.register_widget("battery", self._battery)
 
-        # Fuel Level
-        self._fuel_level = MetricBox("Fuel")
-        self._fuel_level.set_range(0, 100)
-        self._fuel_level.set_decimals(0)
-        self._fuel_level.set_unit("%")
-        self._fuel_level.set_thresholds(warning_low=25)  # Amber at 25%
-        layout.addWidget(self._fuel_level, 2, 1)
+        # Fuel Level - with visual bar (at bottom, spans both columns)
+        self._fuel_level = FuelBar()
+        self._fuel_level.setMinimumHeight(80)
+        layout.addWidget(self._fuel_level, 3, 0, 1, 2)  # Row 3, span both columns
         self.register_widget("fuel_level", self._fuel_level)
 
         return panel

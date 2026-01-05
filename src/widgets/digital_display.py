@@ -47,10 +47,17 @@ class DigitalDisplay(BaseWidget):
         # Draw solid background
         painter.fillRect(rect, QColor("#0A0A0A"))
 
-        # Calculate font sizes with maximum limits
-        value_font_size = min(80, int(rect.height() * self._font_size_ratio))
-        label_font_size = min(24, int(rect.height() * 0.15))
-        unit_font_size = min(28, int(rect.height() * 0.18))
+        # Reserve space for label and unit
+        label_space = 30 if self._show_label and self._label else 0
+        unit_space = 35 if self._show_unit and self._unit_label else 0
+
+        # Calculate remaining space for value
+        value_area_height = rect.height() - label_space - unit_space
+
+        # Font sizes - scale to available space
+        label_font_size = 16
+        unit_font_size = 20
+        value_font_size = min(150, int(value_area_height * self._font_size_ratio))
 
         # Get value color
         value_color = self.get_value_color()
@@ -63,13 +70,13 @@ class DigitalDisplay(BaseWidget):
 
             label_rect = QRect(
                 rect.left(),
-                rect.top() + 2,
+                rect.top() + 5,
                 rect.width(),
-                label_font_size + 4
+                label_space
             )
             painter.drawText(label_rect, Qt.AlignHCenter | Qt.AlignTop, self._label)
 
-        # Draw main value
+        # Draw main value (center area)
         value_font = QFont("Roboto", value_font_size)
         value_font.setBold(True)
         painter.setFont(value_font)
@@ -77,20 +84,15 @@ class DigitalDisplay(BaseWidget):
 
         value_text = self.get_formatted_value()
 
-        if self._center_value:
-            value_rect = rect
-            if self._show_label and self._label:
-                value_rect = QRect(
-                    rect.left(),
-                    rect.top() + label_font_size,
-                    rect.width(),
-                    rect.height() - label_font_size
-                )
-            painter.drawText(value_rect, Qt.AlignCenter, value_text)
-        else:
-            painter.drawText(rect, Qt.AlignCenter, value_text)
+        value_rect = QRect(
+            rect.left(),
+            rect.top() + label_space,
+            rect.width(),
+            value_area_height
+        )
+        painter.drawText(value_rect, Qt.AlignCenter, value_text)
 
-        # Draw unit (bottom right or after value)
+        # Draw unit (bottom, below value)
         if self._show_unit and self._unit_label:
             unit_font = QFont("Roboto", unit_font_size)
             painter.setFont(unit_font)
@@ -98,11 +100,11 @@ class DigitalDisplay(BaseWidget):
 
             unit_rect = QRect(
                 rect.left(),
-                rect.bottom() - unit_font_size - 4,
+                rect.bottom() - unit_space,
                 rect.width(),
-                unit_font_size + 4
+                unit_space
             )
-            painter.drawText(unit_rect, Qt.AlignHCenter | Qt.AlignBottom, self._unit_label)
+            painter.drawText(unit_rect, Qt.AlignHCenter | Qt.AlignTop, self._unit_label)
 
         painter.end()
 
@@ -200,17 +202,20 @@ class GearIndicator(BaseWidget):
         # Draw solid background
         painter.fillRect(rect, QColor("#0A0A0A"))
 
-        # Draw label with max size
-        label_font_size = min(20, int(rect.height() * 0.12))
-        label_font = QFont("Roboto", label_font_size)
+        # Reserve space for label
+        label_space = 30
+
+        # Draw label at top
+        label_font = QFont("Roboto", 16)
         painter.setFont(label_font)
         painter.setPen(QColor(self.theme.TEXT_SECONDARY))
 
-        label_rect = QRect(rect.left(), rect.top() + 2, rect.width(), label_font_size + 4)
+        label_rect = QRect(rect.left(), rect.top() + 5, rect.width(), label_space)
         painter.drawText(label_rect, Qt.AlignHCenter | Qt.AlignTop, "GEAR")
 
-        # Draw gear with max font size
-        gear_font_size = min(120, int(rect.height() * self._font_size_ratio))
+        # Draw gear - large, centered in remaining space
+        gear_area_height = rect.height() - label_space
+        gear_font_size = min(150, int(gear_area_height * 0.7))
         gear_font = QFont("Roboto", gear_font_size)
         gear_font.setBold(True)
         painter.setFont(gear_font)
@@ -218,9 +223,9 @@ class GearIndicator(BaseWidget):
 
         gear_rect = QRect(
             rect.left(),
-            rect.top() + label_font_size,
+            rect.top() + label_space,
             rect.width(),
-            rect.height() - label_font_size
+            gear_area_height
         )
         painter.drawText(gear_rect, Qt.AlignCenter, self.get_gear_text())
 

@@ -253,7 +253,7 @@ class RPMBar(BarGauge):
         self.set_range(0, 8000)
         self.set_label("RPM")
         self._show_value = False  # Value shown elsewhere
-        self._bar_height = 120  # Much taller for 720p
+        self._bar_height = 180  # Much taller for 720p
 
         # More granular: 80 segments = 100 RPM each
         self._segment_count = 80
@@ -281,8 +281,8 @@ class RPMBar(BarGauge):
         bar_width = rect.width() - padding * 2
 
         # Min and max bar heights (bars grow taller toward redline)
-        min_bar_height = 40
-        max_bar_height = self._bar_height - 20
+        min_bar_height = 60
+        max_bar_height = self._bar_height - 30
 
         active_segments = int(self._segment_count * self.value_percent)
         segment_width = bar_width / self._segment_count
