@@ -73,28 +73,18 @@ class RaceLayout(BaseLayout):
         main_layout.addWidget(right_panel)
 
     def _create_left_panel(self) -> QWidget:
-        """Create left panel with gear, boost, and status."""
+        """Create left panel with gear and status."""
         panel = QFrame()
         panel.setFixedWidth(280)  # Wider left panel
         layout = QVBoxLayout(panel)
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(15)
 
-        # Gear indicator
+        # Gear indicator - takes most of the space
         self._gear_indicator = GearIndicator()
-        self._gear_indicator.setMinimumHeight(250)
-        layout.addWidget(self._gear_indicator, stretch=3)
+        self._gear_indicator.setMinimumHeight(450)
+        layout.addWidget(self._gear_indicator, stretch=4)
         self.register_widget("gear", self._gear_indicator)
-
-        # Boost gauge
-        self._boost_box = MetricBox("Boost")
-        self._boost_box.set_range(-1.0, 2.5)
-        self._boost_box.set_decimals(2)
-        self._boost_box.set_unit("bar")
-        self._boost_box.set_thresholds(warning=2.0)
-        self._boost_box.setMinimumHeight(100)
-        layout.addWidget(self._boost_box, stretch=1)
-        self.register_widget("boost", self._boost_box)
 
         # Connection status at bottom of left panel
         self._status_label = QLabel("Connected")
@@ -196,8 +186,17 @@ class RaceLayout(BaseLayout):
         self._battery.set_decimals(1)
         self._battery.set_unit("V")
         self._battery.set_thresholds(warning=15.0, warning_low=12.0)
-        layout.addWidget(self._battery, 2, 0, 1, 2)  # Span both columns
+        layout.addWidget(self._battery, 2, 0)
         self.register_widget("battery", self._battery)
+
+        # Boost gauge (moved from left panel)
+        self._boost_box = MetricBox("Boost")
+        self._boost_box.set_range(-1.0, 2.5)
+        self._boost_box.set_decimals(2)
+        self._boost_box.set_unit("bar")
+        self._boost_box.set_thresholds(warning=2.0)
+        layout.addWidget(self._boost_box, 2, 1)
+        self.register_widget("boost", self._boost_box)
 
         # Fuel Level - with visual bar (at bottom, spans both columns)
         self._fuel_level = FuelBar()

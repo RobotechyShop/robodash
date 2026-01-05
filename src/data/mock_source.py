@@ -107,8 +107,8 @@ class MockDataSource(DataSource):
         self._oil_temp = 20.0
         self._engine_running_time = 0.0
 
-        # Fuel simulation (start with random amount)
-        self._fuel_level = 75.0 + random.uniform(-20, 20)  # 55-95%
+        # Fuel simulation (start at 33% for demo)
+        self._fuel_level = 33.0
 
         logger.info("MockDataSource initialized")
 
@@ -348,12 +348,17 @@ class MockDataSource(DataSource):
         self._oil_temp = max(20, min(150, self._oil_temp))
 
     def _update_fuel(self, dt: float) -> None:
-        """Simulate fuel consumption."""
-        # Fuel consumption based on RPM and throttle
+        """Simulate fuel consumption - faster for demo, restarts at zero."""
+        # Fuel consumption based on RPM and throttle (faster for demo)
         load_factor = (self._throttle / 100) * (self._rpm / self.REDLINE_RPM)
-        # Base consumption + load-based consumption (per minute, scaled to dt)
-        consumption = (0.1 + load_factor * 0.5) * dt / 60.0
-        self._fuel_level = max(5, self._fuel_level - consumption)
+        # Faster consumption for demo visibility
+        consumption = (0.5 + load_factor * 2.0) * dt / 60.0
+        self._fuel_level = max(0, self._fuel_level - consumption)
+
+        # Restart at zero - reset to 33%
+        if self._fuel_level <= 0:
+            self._fuel_level = 33.0
+            logger.info("Fuel depleted - restarting at 33%")
 
     def _calculate_oil_pressure(self) -> float:
         """Calculate oil pressure based on RPM."""

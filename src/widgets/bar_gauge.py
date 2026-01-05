@@ -367,12 +367,13 @@ class FuelBar(BaseWidget):
         painter.fillRect(rect, QColor("#0A0A0A"))
 
         padding = 10
-        label_height = 20
-        value_width = 60
+        label_height = 25
+        label_margin = 10  # Margin under FUEL text
+        value_width = 80  # Wider to fit "100%"
 
         # Label at top
         painter.setPen(QColor(self.theme.TEXT_SECONDARY))
-        font = QFont("Roboto", 12)
+        font = QFont("Roboto", 14)
         painter.setFont(font)
         painter.drawText(
             QRectF(padding, 5, 100, label_height),
@@ -380,12 +381,12 @@ class FuelBar(BaseWidget):
             self._label
         )
 
-        # Bar area
+        # Bar area (with margin under label)
         bar_rect = QRectF(
             padding,
-            label_height + 5,
+            label_height + label_margin,
             rect.width() - padding * 2 - value_width - 10,
-            rect.height() - label_height - 15
+            rect.height() - label_height - label_margin - 10
         )
 
         # Draw bar background
@@ -415,16 +416,16 @@ class FuelBar(BaseWidget):
             painter.drawRoundedRect(fill_rect, 4, 4)
 
         # Draw percentage value on right
-        value_font = QFont("Roboto", 18)
+        value_font = QFont("Roboto", 22)
         value_font.setBold(True)
         painter.setFont(value_font)
         painter.setPen(self.get_value_color())
 
         value_rect = QRectF(
             rect.width() - value_width - padding,
-            label_height,
+            label_height + label_margin,
             value_width,
-            rect.height() - label_height - 10
+            rect.height() - label_height - label_margin - 10
         )
         painter.drawText(
             value_rect,

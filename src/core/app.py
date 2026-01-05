@@ -14,10 +14,10 @@ from typing import Optional
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QFont, QIcon, QPalette, QColor
+from PyQt5.QtGui import QFont, QIcon, QPalette, QColor, QFontDatabase
 
 from .config import Config
-from .constants import SCREEN_WIDTH, SCREEN_HEIGHT, ROBOTECHY_LOGO_PATH
+from .constants import SCREEN_WIDTH, SCREEN_HEIGHT, ROBOTECHY_LOGO_PATH, FONTS_DIR
 from ..data import DataSource, MockDataSource, CANDataSource
 from ..data.can_source import is_can_available
 from ..layouts import SplashScreen, RaceLayout
@@ -25,6 +25,37 @@ from ..themes import get_theme_manager
 from ..utils import ValueSmoother
 
 logger = logging.getLogger(__name__)
+
+
+def load_custom_fonts() -> str:
+    """
+    Load custom fonts from assets/fonts directory.
+
+    Returns:
+        Name of loaded custom font, or "Roboto" as fallback.
+    """
+    # Try to load Japanese Robot font
+    japanese_robot = FONTS_DIR / "Japanese Robot.ttf"
+    if japanese_robot.exists():
+        font_id = QFontDatabase.addApplicationFont(str(japanese_robot))
+        if font_id >= 0:
+            families = QFontDatabase.applicationFontFamilies(font_id)
+            if families:
+                logger.info(f"Loaded custom font: {families[0]}")
+                return families[0]
+
+    # Try alternative name
+    japanese_robot_alt = FONTS_DIR / "JapaneseRobot.ttf"
+    if japanese_robot_alt.exists():
+        font_id = QFontDatabase.addApplicationFont(str(japanese_robot_alt))
+        if font_id >= 0:
+            families = QFontDatabase.applicationFontFamilies(font_id)
+            if families:
+                logger.info(f"Loaded custom font: {families[0]}")
+                return families[0]
+
+    logger.info("Using default Roboto font")
+    return "Roboto"
 
 
 class DashboardWindow(QMainWindow):
@@ -187,6 +218,10 @@ class DashboardApp:
         self.app = QApplication(sys.argv)
         self.app.setApplicationName("RoboDash")
         self.app.setApplicationVersion(self.config.app_version)
+
+        # Load custom fonts
+        custom_font = load_custom_fonts()
+        self.app.setProperty("custom_font", custom_font)
 
         # Set application icon (for taskbar/dock)
         if ROBOTECHY_LOGO_PATH.exists():

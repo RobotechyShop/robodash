@@ -8,7 +8,7 @@ while initializing CAN communication and loading resources.
 from typing import Optional
 from pathlib import Path
 
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QGraphicsOpacityEffect
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QGraphicsOpacityEffect, QApplication
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QSize, QPropertyAnimation, QEasingCurve
 from PyQt5.QtGui import QPainter, QColor, QPixmap, QFont
 
@@ -161,15 +161,20 @@ class SplashScreen(QWidget):
         center_y: int
     ) -> None:
         """Draw a placeholder R if logo file not found."""
+        # Try to use custom font if available
+        app = QApplication.instance()
+        custom_font = app.property("custom_font") if app else None
+        font_name = custom_font if custom_font else "Roboto"
+
         # Large stylized R
-        font = QFont("Roboto", 120)
+        font = QFont(font_name, 180)
         font.setBold(True)
         painter.setFont(font)
         painter.setPen(QColor(self._theme.ROBOTECHY_GREEN))
 
         text_rect = self.rect()
         text_rect.moveCenter(self.rect().center())
-        text_rect.moveTop(center_y - 80)
+        text_rect.moveTop(center_y - 120)
 
         painter.drawText(text_rect, Qt.AlignHCenter | Qt.AlignTop, "R")
 

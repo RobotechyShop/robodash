@@ -129,6 +129,7 @@ class SpeedDisplay(DigitalDisplay):
     Speed display optimized for vehicle speed.
 
     Large, centered speed value with unit indicator.
+    Uses white text for maximum visibility.
     """
 
     def __init__(self, parent: Optional[QWidget] = None):
@@ -140,6 +141,10 @@ class SpeedDisplay(DigitalDisplay):
         self.set_range(0, 200)
         self.set_format("{:.0f}")
         self._font_size_ratio = 0.65
+
+    def get_value_color(self) -> QColor:
+        """Speed always uses white for maximum visibility."""
+        return QColor("#FFFFFF")
 
 
 class GearIndicator(BaseWidget):
