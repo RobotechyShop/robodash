@@ -1,0 +1,238 @@
+= RoboDash Setup Guide
+:toc:
+:toc-placement!:
+:icons: font
+
+Complete installation and setup instructions for RoboDash.
+
+toc::[]
+
+== Prerequisites
+
+=== Hardware Requirements
+
+- Raspberry Pi 4 (4GB+ RAM recommended)
+- Corsair Xeneon Edge display (or compatible 1920x360)
+- MCP2515 CAN controller module
+- ECUMaster EMU Black ECU (with CAN enabled)
+- Adequate 12V power supply
+
+=== Software Requirements
+
+- Raspberry Pi OS (64-bit, Bookworm or newer)
+- Python 3.9+
+- Git
+
+== Quick Start
+
+[source,bash]
+----
+# Clone repository
+git clone https://github.com/RobotechyShop/robodash.git
+cd robodash
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run with mock data (no hardware needed)
+python -m src.main --mock
+
+# Run with real CAN data
+python -m src.main
+----
+
+== Detailed Installation
+
+=== 1. Raspberry Pi OS Setup
+
+Install Raspberry Pi OS (64-bit) using Raspberry Pi Imager:
+
+1. Download Raspberry Pi Imager from https://www.raspberrypi.com/software/
+2. Select "Raspberry Pi OS (64-bit)"
+3. Enable SSH and configure WiFi in advanced options
+4. Write to SD card
+
+=== 2. Enable Required Interfaces
+
+[source,bash]
+----
+sudo raspi-config
+----
+
+Enable:
+- SPI (for MCP2515 CAN controller)
+- I2C (optional, for other sensors)
+
+=== 3. Configure CAN Interface
+
+Add to `/boot/firmware/config.txt`:
+
+[source,ini]
+----
+# Enable SPI
+dtparam=spi=on
+
+# MCP2515 CAN controller
+# Adjust oscillator frequency to match your module (8MHz, 12MHz, or 16MHz)
+dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=25,spimaxfrequency=1000000
+----
+
+IMPORTANT: Check the crystal frequency on your MCP2515 module. Common values are 8MHz, 12MHz, or 16MHz. Using the wrong value will cause communication failures.
+
+Reboot after changes:
+[source,bash]
+----
+sudo reboot
+----
+
+=== 4. Install CAN Utilities
+
+[source,bash]
+----
+sudo apt update
+sudo apt install -y can-utils
+----
+
+=== 5. Bring Up CAN Interface
+
+[source,bash]
+----
+# Bring up CAN interface at 500 kbps (EMU Black default)
+sudo ip link set can0 up type can bitrate 500000
+
+# Verify interface is up
+ip link show can0
+
+# Test receiving (should show data if ECU is connected and running)
+candump can0
+----
+
+To make CAN interface persistent across reboots, create `/etc/network/interfaces.d/can0`:
+
+[source]
+----
+auto can0
+iface can0 inet manual
+    pre-up /sbin/ip link set can0 type can bitrate 500000
+    up /sbin/ip link set can0 up
+    down /sbin/ip link set can0 down
+----
+
+=== 6. Install Python Dependencies
+
+[source,bash]
+----
+# Install system dependencies for PyQt5
+sudo apt install -y python3-pyqt5 python3-pip
+
+# Install RoboDash dependencies
+cd robodash
+pip install -r requirements.txt
+----
+
+=== 7. Install Qt Dependencies (Headless/EGLFS)
+
+For running without a desktop environment:
+
+[source,bash]
+----
+sudo apt install -y \
+    libxcb-xinerama0 \
+    libxcb-icccm4 \
+    libxcb-image0 \
+    libxcb-keysyms1 \
+    libxcb-render-util0 \
+    libxkbcommon-x11-0 \
+    libegl1 \
+    libxcb-cursor0
+----
+
+== Running RoboDash
+
+=== Development Mode (Windowed)
+
+[source,bash]
+----
+# With mock data
+python -m src.main --mock --windowed
+
+# With real CAN
+python -m src.main --windowed
+----
+
+=== Production Mode (Fullscreen)
+
+[source,bash]
+----
+python -m src.main
+----
+
+=== Auto-Start on Boot
+
+Create systemd service `/etc/systemd/system/robodash.service`:
+
+[source,ini]
+----
+[Unit]
+Description=RoboDash Racing Dashboard
+After=network.target can0.service
+
+[Service]
+Type=simple
+User=pi
+Environment=QT_QPA_PLATFORM=eglfs
+WorkingDirectory=/home/pi/robodash
+ExecStart=/usr/bin/python3 -m src.main
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+----
+
+Enable and start:
+[source,bash]
+----
+sudo systemctl enable robodash
+sudo systemctl start robodash
+----
+
+== Configuration
+
+Edit `config/default.yaml` to customize:
+
+[source,yaml]
+----
+# Unit preferences (UK defaults)
+units:
+  speed: "mph"         # mph | km/h
+  temperature: "c"     # c | f
+  pressure: "bar"      # bar | psi | kpa
+
+# Gauge thresholds
+gauges:
+  rpm:
+    warning: 6800      # Shift light
+    critical: 7200     # Redline
+  coolant_temp:
+    warning: 105
+    critical: 115
+----
+
+== Testing
+
+[source,bash]
+----
+# Run all tests
+make test
+
+# Run with coverage
+make test-cov
+
+# Run screenshot tests
+make screenshot
+----
+
+== Troubleshooting
+
+See link:TROUBLESHOOTING.adoc[TROUBLESHOOTING.adoc] for common issues.

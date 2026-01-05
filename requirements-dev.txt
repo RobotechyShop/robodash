@@ -1,0 +1,24 @@
+# RoboDash Development Dependencies
+#
+# Install: pip install -r requirements-dev.txt
+# Documentation: docs/SETUP.adoc
+
+# Include production dependencies
+-r requirements.txt
+
+# Testing
+# Reference: https://pytest-qt.readthedocs.io/
+pytest>=7.0.0
+pytest-qt>=4.2.0
+pytest-xvfb>=2.0.0      # Headless testing on Linux
+pytest-cov>=4.0.0       # Coverage reporting
+
+# Code Quality
+black>=23.0.0           # Code formatting
+flake8>=6.0.0           # Linting
+mypy>=1.0.0             # Type checking
+isort>=5.12.0           # Import sorting
+
+# Type Stubs
+PyQt5-stubs>=5.15.0
+types-PyYAML>=6.0.0

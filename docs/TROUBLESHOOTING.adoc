@@ -1,0 +1,221 @@
+= RoboDash Troubleshooting
+:toc:
+:toc-placement!:
+:icons: font
+
+Common problems and solutions for RoboDash.
+
+toc::[]
+
+== Quick Reference
+
+[cols="2,3"]
+|===
+| Problem | Solution
+
+| CAN interface not found
+| Run `sudo ip link set can0 up type can bitrate 500000`. Check MCP2515 wiring and `/boot/firmware/config.txt` dtoverlay.
+
+| No data from ECU
+| Verify EMU Black has "Send EMU stream over CAN-Bus" enabled. Check CAN_H/CAN_L wiring and termination.
+
+| Display shows black screen
+| Check `QT_QPA_PLATFORM` env var. Try `export QT_QPA_PLATFORM=eglfs` or `xcb`. Verify display connection.
+
+| Permission denied on CAN
+| Run with `sudo` or add user to `dialout` group: `sudo usermod -aG dialout $USER`
+
+| Application won't start
+| Check Python version (`python3 --version` >= 3.9). Install dependencies: `pip install -r requirements.txt`
+
+| Widgets not updating
+| Verify data source is connected (check status indicator). Try `--mock` flag to test with simulated data.
+
+| Screen tearing/lag
+| Reduce update rate in config. Check Pi CPU temperature (`vcgencmd measure_temp`). Ensure adequate cooling.
+
+| CAN data corrupt
+| Check crystal frequency in dtoverlay matches MCP2515 module. Verify CAN bus termination.
+
+| Touch not working
+| Check USB connection. Install touch driver if needed. Touch is for pre-drive config only.
+
+| Wrong units displayed
+| Edit `config/default.yaml` units section. Default is UK (mph, °C, bar).
+
+| Warnings not showing
+| Check threshold values in config. Verify sensor data is being received.
+
+| Font rendering issues
+| Install fonts: `sudo apt install fonts-roboto`. Or use system font fallback.
+
+| PyQt5 import error
+| Install system Qt: `sudo apt install python3-pyqt5`
+
+| "Cannot connect to X server"
+| Running headless? Use `QT_QPA_PLATFORM=offscreen` for testing or `eglfs` for framebuffer.
+
+| Service won't start on boot
+| Check systemd logs: `journalctl -u robodash`. Verify paths in service file.
+
+| High CPU usage
+| Reduce update rate. Check for runaway animations. Use `htop` to identify bottleneck.
+
+| Memory leak over time
+| Update to latest code. Check for circular references in custom code.
+
+| EMU Black Base ID mismatch
+| Check EMU Black CAN settings. Update `base_id` in `config/default.yaml` to match (default 0x600).
+|===
+
+== Detailed Troubleshooting
+
+=== CAN Bus Issues
+
+==== Check CAN Interface
+
+[source,bash]
+----
+# Check if interface exists
+ip link show can0
+
+# If not, check kernel module
+dmesg | grep -i can
+
+# Check SPI is enabled
+ls /dev/spi*
+----
+
+==== Monitor CAN Traffic
+
+[source,bash]
+----
+# Install CAN utilities
+sudo apt install can-utils
+
+# Bring up interface
+sudo ip link set can0 up type can bitrate 500000
+
+# Monitor traffic
+candump can0
+
+# You should see frames like:
+# can0  600   [8]  XX XX XX XX XX XX XX XX
+# can0  601   [8]  XX XX XX XX XX XX XX XX
+# ...through 607
+----
+
+==== Test CAN Loopback
+
+[source,bash]
+----
+# Set up loopback mode
+sudo ip link set can0 down
+sudo ip link set can0 type can bitrate 500000 loopback on
+sudo ip link set can0 up
+
+# Send test message (in one terminal)
+cansend can0 123#DEADBEEF
+
+# Should appear in candump (other terminal)
+----
+
+=== Display Issues
+
+==== Check Display Detection
+
+[source,bash]
+----
+# List displays
+xrandr
+
+# Check HDMI status
+tvservice -s
+
+# Force HDMI output
+tvservice -p
+----
+
+==== Qt Platform Options
+
+[source,bash]
+----
+# For X11 desktop
+export QT_QPA_PLATFORM=xcb
+
+# For framebuffer (no desktop)
+export QT_QPA_PLATFORM=eglfs
+
+# For headless testing
+export QT_QPA_PLATFORM=offscreen
+----
+
+=== Application Debugging
+
+==== Enable Debug Logging
+
+[source,bash]
+----
+python -m src.main --debug
+----
+
+==== Test with Mock Data
+
+[source,bash]
+----
+# Bypass CAN, use simulated data
+python -m src.main --mock --windowed --debug
+----
+
+==== Run Tests
+
+[source,bash]
+----
+# Run all tests
+make test
+
+# Run specific test
+pytest tests/test_data/test_mock_source.py -v
+----
+
+=== Performance Issues
+
+==== Check System Resources
+
+[source,bash]
+----
+# CPU and memory
+htop
+
+# Temperature
+vcgencmd measure_temp
+
+# GPU memory
+vcgencmd get_mem gpu
+----
+
+==== Reduce Load
+
+Edit `config/default.yaml`:
+
+[source,yaml]
+----
+app:
+  update_rate_hz: 20  # Reduce from 30
+----
+
+== Getting Help
+
+1. Check this troubleshooting guide
+2. Search existing GitHub issues
+3. Open a new issue with:
+   - Error messages / logs
+   - Hardware configuration
+   - Steps to reproduce
+   - Output of `python -m src.main --debug`
+
+== References
+
+- link:SETUP.adoc[Setup Guide]
+- link:HARDWARE.adoc[Hardware Guide]
+- https://github.com/RobotechyShop/robodash/issues[GitHub Issues]

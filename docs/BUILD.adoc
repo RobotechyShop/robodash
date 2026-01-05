@@ -1,0 +1,172 @@
+= RoboDash Physical Build Guide
+:toc:
+:toc-placement!:
+:icons: font
+
+Assembly and installation guide for the RoboDash enclosure.
+
+toc::[]
+
+== Overview
+
+The RoboDash enclosure is 3D printed in PETG-CF (Carbon Fiber filled PETG) for strength and heat resistance. The design accommodates the Corsair Xeneon Edge display, Raspberry Pi 4, and MCP2515 CAN module.
+
+== Materials Required
+
+=== 3D Printing
+
+[cols="1,2"]
+|===
+| Material | Notes
+
+| PETG-CF | Production parts - strength, heat resistance
+| PLA | Prototyping only - not suitable for vehicle use
+| Layer Height | 0.2mm recommended
+| Infill | 40-60%
+| Supports | Required for some parts
+|===
+
+CAUTION: PLA will deform in a hot vehicle interior. Use PETG-CF or ABS for production.
+
+=== Hardware
+
+[cols="2,1,2"]
+|===
+| Item | Quantity | Notes
+
+| M3x8mm screws | 8 | Display mounting
+| M3x6mm screws | 4 | Pi mounting
+| M3 heat-set inserts | 12 | For screw threads
+| M3 nuts | 4 | Alternative to inserts
+| Foam tape (3mm) | ~200mm | Vibration dampening
+| Cable ties | Several | Wire management
+|===
+
+== 3D Printed Parts
+
+Located in `3d-model/`:
+
+[cols="1,2,2"]
+|===
+| File | Description | Print Notes
+
+| `Robodash Left Top.stl` | Left upper enclosure | Supports needed
+| `Robodash Left Bottom.stl` | Left lower enclosure | No supports
+| `Robodash Right Top.stl` | Right upper enclosure | Supports needed
+| `Robodash Right Bottom.stl` | Right lower enclosure | No supports
+|===
+
+The enclosure is split into 4 parts to fit on standard 3D printer beds.
+
+== Printing Instructions
+
+1. **Orientation**: Print top pieces face-down for best surface finish
+2. **Supports**: Use tree supports for overhangs
+3. **First Layer**: Ensure good bed adhesion - use brim if needed
+4. **Temperature**: PETG-CF typically 240-260°C nozzle, 70-80°C bed
+
+=== Recommended Settings (PETG-CF)
+
+[cols="1,1"]
+|===
+| Setting | Value
+
+| Nozzle Temp | 250°C
+| Bed Temp | 75°C
+| Layer Height | 0.2mm
+| Infill | 50%
+| Perimeters | 3
+| Top/Bottom Layers | 4
+| Print Speed | 50mm/s
+|===
+
+== Assembly
+
+=== Step 1: Install Heat-Set Inserts
+
+Insert M3 heat-set inserts into the mounting holes using a soldering iron:
+
+1. Heat iron to 200°C
+2. Place insert on hole
+3. Press straight down with iron
+4. Allow to cool before handling
+
+=== Step 2: Mount Raspberry Pi
+
+1. Apply foam tape to Pi mounting area
+2. Place Raspberry Pi on standoffs
+3. Secure with M3x6mm screws
+4. Connect ribbon cables if using DSI display
+
+=== Step 3: Install MCP2515 Module
+
+1. Mount MCP2515 near Pi GPIO header
+2. Connect SPI wires (see HARDWARE.adoc)
+3. Route CAN wires to external connector
+
+=== Step 4: Install Display
+
+1. Test fit display in enclosure
+2. Apply foam tape around display perimeter
+3. Carefully seat display
+4. Secure with M3x8mm screws
+
+=== Step 5: Join Enclosure Halves
+
+1. Route all cables
+2. Align top and bottom sections
+3. Secure with screws
+
+=== Step 6: Final Wiring
+
+1. Connect display USB-C
+2. Connect CAN wires to vehicle harness
+3. Connect power (USB-C from DC-DC converter)
+
+== Vehicle Installation
+
+=== Mounting Location
+
+The dashboard mounts in the standard gauge cluster location:
+
+- Must not obstruct driver view
+- Must be within easy glance angle
+- Must not interfere with airbags or controls
+
+=== Wiring Routing
+
+1. Route CAN wires to ECU location
+2. Route power from switched 12V source
+3. Use grommets where wires pass through panels
+4. Secure all wiring with cable ties
+
+=== CAN Bus Connection
+
+1. Locate EMU Black CAN output
+2. Connect CAN_H and CAN_L
+3. Verify termination (see HARDWARE.adoc)
+4. Test with `candump can0`
+
+== Safety Considerations
+
+[IMPORTANT]
+====
+- The dashboard is a **passive display only** - no driver interaction while vehicle is in motion
+- All mounting must be secure to prevent dislodging in an accident
+- Wiring must not interfere with vehicle controls
+- Power must be from switched source to prevent battery drain
+- Follow all FIA/regulatory requirements for dashboard visibility
+====
+
+== Testing
+
+Before vehicle installation:
+
+1. Bench test with mock data: `python -m src.main --mock`
+2. Test CAN communication with ECU powered
+3. Verify all gauges display correctly
+4. Check warning indicators work
+
+== Troubleshooting
+
+See link:TROUBLESHOOTING.adoc[TROUBLESHOOTING.adoc] for common issues.

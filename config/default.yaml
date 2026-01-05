@@ -1,0 +1,97 @@
+# RoboDash Default Configuration
+#
+# Reference: https://github.com/valtsu23/DIY-Emu-Black-Dash
+# Documentation: docs/SETUP.adoc
+
+app:
+  name: "RoboDash"
+  version: "1.0.0"
+  update_rate_hz: 30
+
+display:
+  width: 1920
+  height: 720
+  fullscreen: true
+  frameless: true
+  orientation: 0  # degrees
+
+# CAN bus settings for ECUMaster EMU Black
+# Reference: https://github.com/designer2k2/EMUcan
+can:
+  enabled: true
+  channel: "can0"
+  bitrate: 500000
+  base_id: 0x600  # EMU Black default stream base ID
+  timeout_ms: 1000
+
+# Unit preferences (UK defaults)
+units:
+  speed: "mph"         # mph | km/h
+  temperature: "c"     # c | f
+  pressure: "bar"      # bar | psi | kpa
+
+# Layout selection
+layout:
+  current: "race"      # race | street | diagnostic
+
+# Theme selection
+theme:
+  current: "robotechy_dark"
+
+# Splash screen
+splash:
+  duration_ms: 2500
+
+# Gauge configurations
+gauges:
+  rpm:
+    min: 0
+    max: 8000
+    warning: 6800      # Shift light activation
+    critical: 7200     # Redline
+    zones:
+      - start: 0
+        end: 6000
+        color: "#9EFF11"   # Robotechy green
+      - start: 6000
+        end: 6800
+        color: "#FFAA00"   # Warning yellow
+      - start: 6800
+        end: 8000
+        color: "#FF0000"   # Critical red
+
+  speed:
+    min: 0
+    max: 200           # mph (adjust based on units.speed)
+
+  boost:
+    min: -1.0          # bar (vacuum)
+    max: 2.5           # bar
+    warning: 2.0
+
+  coolant_temp:
+    min: 0
+    max: 140           # Celsius
+    warning: 105
+    critical: 115
+
+  oil_temp:
+    min: 0
+    max: 160           # Celsius
+    warning: 120
+    critical: 140
+
+  oil_pressure:
+    min: 0
+    max: 10            # bar
+    warning_low: 1.0   # Warning if below
+
+  afr:
+    min: 10.0
+    max: 20.0
+
+  battery:
+    min: 10.0
+    max: 16.0          # Volts
+    warning_low: 12.0
+    warning: 15.0      # High voltage warning
