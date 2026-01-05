@@ -150,7 +150,7 @@ class SpeedDisplay(DigitalDisplay):
         self.set_unit("mph")
         self.set_range(0, 200)
         self.set_format("{:.0f}")
-        self._font_size_ratio = 0.65
+        self._font_size_ratio = 0.85  # Larger for better visibility
 
     def get_value_color(self) -> QColor:
         """Speed always uses white for maximum visibility."""
