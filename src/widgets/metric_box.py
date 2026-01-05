@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import Qt, QRect, QRectF
 from PyQt5.QtGui import QPainter, QPen, QBrush, QColor, QFont
 
-from .base_widget import BaseWidget
+from .base_widget import BaseWidget, get_custom_font
 
 
 class MetricBox(BaseWidget):
@@ -101,8 +101,11 @@ class MetricBox(BaseWidget):
         value_font_size = int(value_height * 0.6) if not self._compact else int(value_height * 0.5)
         value_font_size = max(value_font_size, 18)  # Minimum readable size
 
+        # Get custom font
+        font_name = get_custom_font()
+
         # Draw label
-        label_font = QFont("Roboto", label_font_size)
+        label_font = QFont(font_name, label_font_size)
         painter.setFont(label_font)
         painter.setPen(QColor(self.theme.BOX_LABEL))
 
@@ -115,7 +118,7 @@ class MetricBox(BaseWidget):
         painter.drawText(label_rect, Qt.AlignLeft | Qt.AlignTop, self._label)
 
         # Draw value - right aligned
-        value_font = QFont("Roboto", value_font_size)
+        value_font = QFont(font_name, value_font_size)
         value_font.setBold(True)
         painter.setFont(value_font)
         painter.setPen(self.get_value_color())
@@ -132,7 +135,7 @@ class MetricBox(BaseWidget):
 
         # Draw unit
         if self._unit_label:
-            unit_font = QFont("Roboto", label_font_size)
+            unit_font = QFont(font_name, label_font_size)
             painter.setFont(unit_font)
             painter.setPen(QColor(self.theme.TEXT_SECONDARY))
 

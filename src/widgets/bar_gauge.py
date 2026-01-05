@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import Qt, QRect, QRectF
 from PyQt5.QtGui import QPainter, QPen, QBrush, QColor, QLinearGradient, QFont
 
-from .base_widget import BaseWidget
+from .base_widget import BaseWidget, get_custom_font
 
 
 class BarGauge(BaseWidget):
@@ -130,7 +130,7 @@ class BarGauge(BaseWidget):
 
         # Draw label
         if self._show_label and self._label:
-            font = QFont("Roboto", 10)
+            font = QFont(get_custom_font(), 10)
             painter.setFont(font)
             painter.setPen(QColor(self.theme.TEXT_SECONDARY))
 
@@ -139,7 +139,7 @@ class BarGauge(BaseWidget):
 
         # Draw value
         if self._show_value:
-            font = QFont("Roboto", 12)
+            font = QFont(get_custom_font(), 12)
             font.setBold(True)
             painter.setFont(font)
             painter.setPen(self.get_value_color())
@@ -188,7 +188,7 @@ class BarGauge(BaseWidget):
 
         # Draw label
         if self._show_label and self._label:
-            font = QFont("Roboto", 9)
+            font = QFont(get_custom_font(), 9)
             painter.setFont(font)
             painter.setPen(QColor(self.theme.TEXT_SECONDARY))
 
@@ -197,7 +197,7 @@ class BarGauge(BaseWidget):
 
         # Draw value
         if self._show_value:
-            font = QFont("Roboto", 10)
+            font = QFont(get_custom_font(), 10)
             font.setBold(True)
             painter.setFont(font)
             painter.setPen(self.get_value_color())
@@ -281,8 +281,9 @@ class RPMBar(BarGauge):
         bar_width = rect.width() - padding * 2
 
         # Min and max bar heights (bars grow taller toward redline)
-        min_bar_height = 60
-        max_bar_height = self._bar_height - 30
+        # Leave more room at bottom for RPM numbers
+        min_bar_height = 50
+        max_bar_height = self._bar_height - 50
 
         active_segments = int(self._segment_count * self.value_percent)
         segment_width = bar_width / self._segment_count
@@ -295,7 +296,7 @@ class RPMBar(BarGauge):
             bar_height = min_bar_height + (max_bar_height - min_bar_height) * progress
 
             seg_x = padding + i * segment_width + segment_gap / 2
-            seg_y = rect.bottom() - bar_height - 15  # Aligned to bottom
+            seg_y = rect.bottom() - bar_height - 35  # More space at bottom for numbers
             seg_w = segment_width - segment_gap
             seg_h = bar_height
 
@@ -323,16 +324,17 @@ class RPMBar(BarGauge):
             painter.setBrush(QBrush(QColor(color)))
             painter.drawRoundedRect(seg_rect, 2, 2)
 
-        # Draw RPM markers below
+        # Draw RPM markers below with more spacing from bar
         painter.setPen(QColor(self.theme.TEXT_SECONDARY))
-        font = QFont("Roboto", 12)
+        font_name = get_custom_font()
+        font = QFont(font_name, 14)
         painter.setFont(font)
 
-        marker_y = rect.bottom() - 18
+        marker_y = rect.bottom() - 8  # Moved down for more space from bar
         for rpm in range(0, 9000, 1000):
             x = padding + (rpm / 8000) * bar_width
             painter.drawText(
-                QRectF(x - 20, marker_y, 40, 18),
+                QRectF(x - 20, marker_y, 40, 20),
                 Qt.AlignCenter,
                 str(rpm // 1000)
             )
@@ -373,7 +375,8 @@ class FuelBar(BaseWidget):
 
         # Label at top
         painter.setPen(QColor(self.theme.TEXT_SECONDARY))
-        font = QFont("Roboto", 14)
+        font_name = get_custom_font()
+        font = QFont(font_name, 14)
         painter.setFont(font)
         painter.drawText(
             QRectF(padding, 5, 100, label_height),
@@ -416,7 +419,7 @@ class FuelBar(BaseWidget):
             painter.drawRoundedRect(fill_rect, 4, 4)
 
         # Draw percentage value on right
-        value_font = QFont("Roboto", 22)
+        value_font = QFont(font_name, 22)
         value_font.setBold(True)
         painter.setFont(value_font)
         painter.setPen(self.get_value_color())

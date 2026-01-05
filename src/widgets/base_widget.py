@@ -10,11 +10,21 @@ Provides common functionality for:
 
 from typing import Optional
 
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QWidget, QApplication
 from PyQt5.QtCore import Qt, pyqtProperty, pyqtSignal
 from PyQt5.QtGui import QColor
 
 from ..themes import get_current_theme
+
+
+def get_custom_font() -> str:
+    """Get the custom font name if available, otherwise Roboto."""
+    app = QApplication.instance()
+    if app:
+        custom_font = app.property("custom_font")
+        if custom_font:
+            return custom_font
+    return "Roboto"
 
 
 class BaseWidget(QWidget):
