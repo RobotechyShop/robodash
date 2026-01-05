@@ -4,6 +4,8 @@
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
 [![PyQt5](https://img.shields.io/badge/PyQt5-5.15+-green.svg)](https://www.riverbankcomputing.com/software/pyqt/)
 
+![RoboDash Screenshot](assets/screenshot.png)
+
 A custom racing car dashboard for a Toyota Supra Mk4, designed as part of an NEA coursework. Features a PyQt5-based display system running on Raspberry Pi with ECUMaster EMU Black CAN bus integration.
 
 Reference implementation based on [DIY-Emu-Black-Dash](https://github.com/valtsu23/DIY-Emu-Black-Dash).
