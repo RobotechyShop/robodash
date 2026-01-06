@@ -1,0 +1,178 @@
+= RoboDash Architecture
+:toc:
+:toc-placement!:
+:icons: font
+
+Technical architecture documentation for the RoboDash racing dashboard.
+
+toc::[]
+
+== Overview
+
+RoboDash is a PyQt5-based digital dashboard for the Toyota Supra Mk4 time attack car. It displays real-time telemetry from an ECUMaster EMU Black ECU via CAN bus on a Corsair Xeneon Edge display (1920x360).
+
+=== Design Principles
+
+[horizontal]
+Glance-Only Display:: The dashboard is designed for at-a-glance reading while driving. *No interaction should be required or expected while the vehicle is in motion.*
+Safety First:: All warnings are prominently displayed with color coding (green/amber/red).
+Smooth Performance:: Targets 30 FPS with efficient partial-update rendering.
+Modular Design:: Hot-swappable data sources, replaceable layouts, themeable widgets.
+
+== System Architecture
+
+[source]
+----
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           HARDWARE LAYER                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  ECUMaster EMU Black ──CAN 500kbps──► MCP2515 ──SPI──► Raspberry Pi 4      │
+│                                                              │              │
+│                                              Corsair Xeneon Edge (1920x360) │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                                   │
+                                                   ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           DATA LAYER (src/data/)                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  ┌──────────────────┐    ┌───────────────────┐    ┌───────────────────┐    │
+│  │   DataSource     │◄───│   CANDataSource   │    │  MockDataSource   │    │
+│  │   (Abstract)     │    │   (Real CAN)      │    │  (Simulation)     │    │
+│  └────────┬─────────┘    └───────────────────┘    └───────────────────┘    │
+│           │                        │                                        │
+│           │              ┌─────────▼─────────┐                              │
+│           │              │ EMUProtocolDecoder │                              │
+│           │              └─────────┬─────────┘                              │
+│           │                        │                                        │
+│           └────────────────────────┼────────────────────────────────────────│
+│                                    ▼                                        │
+│                         ┌─────────────────────┐                             │
+│                         │    VehicleState     │                             │
+│                         │    (Dataclass)      │                             │
+│                         └─────────────────────┘                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                           pyqtSignal(data_updated)
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      PRESENTATION LAYER (PyQt5)                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                       DashboardWindow                                │   │
+│  │  ┌───────────────────────────────────────────────────────────────┐  │   │
+│  │  │                      RaceLayout                               │  │   │
+│  │  │  ┌─────────┐ ┌────────────┐ ┌─────────┐ ┌─────────────────┐  │  │   │
+│  │  │  │  Gear   │ │    RPM     │ │  Speed  │ │   MetricBoxes   │  │  │   │
+│  │  │  │Indicator│ │ Display+Bar│ │ Display │ │  (Temps, Press) │  │  │   │
+│  │  │  └─────────┘ └────────────┘ └─────────┘ └─────────────────┘  │  │   │
+│  │  │  ┌───────────────────────────────────────────────────────┐   │  │   │
+│  │  │  │                    ShiftLight Bar                      │   │  │   │
+│  │  │  └───────────────────────────────────────────────────────┘   │  │   │
+│  │  └───────────────────────────────────────────────────────────────┘  │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────┘
+----
+
+== Module Structure
+
+[source]
+----
+src/
+├── main.py                 # Application entry point
+├── core/
+│   ├── app.py              # QApplication lifecycle
+│   ├── config.py           # YAML configuration
+│   └── constants.py        # Screen dims, CAN IDs, colors
+├── data/
+│   ├── base.py             # Abstract DataSource
+│   ├── can_source.py       # Real CAN bus source
+│   ├── mock_source.py      # Simulated data
+│   ├── emu_protocol.py     # EMU Black CAN decoder
+│   └── models.py           # VehicleState dataclass
+├── widgets/
+│   ├── base_widget.py      # Widget base class
+│   ├── circular_gauge.py   # Tachometer
+│   ├── digital_display.py  # Speed, gear
+│   ├── bar_gauge.py        # RPM bar
+│   ├── metric_box.py       # Temp, pressure boxes
+│   ├── shift_light.py      # LED shift indicator
+│   └── warning_indicator.py
+├── layouts/
+│   ├── base_layout.py      # Layout base class
+│   ├── splash_screen.py    # Startup screen
+│   └── race_layout.py      # Main racing layout
+├── themes/
+│   ├── robotechy_dark.py   # Dark theme colors
+│   └── theme_manager.py    # Theme application
+└── utils/
+    ├── unit_converter.py   # mph/kmh, C/F, bar/psi
+    └── smoothing.py        # EMA value smoothing
+----
+
+== Data Flow
+
+1. **CAN Reception**: MCP2515 receives CAN frames from EMU Black
+2. **Protocol Decode**: EMUProtocolDecoder assembles 8 frames into VehicleState
+3. **Signal Emission**: DataSource emits `data_updated` signal
+4. **Value Smoothing**: ValueSmoother applies EMA filtering
+5. **Widget Update**: RaceLayout distributes values to widgets
+6. **Render**: Widgets repaint only on value change
+
+== Threading Model
+
+[source]
+----
+┌─────────────────┐     ┌─────────────────┐
+│   Main Thread   │     │  CAN Thread     │
+│   (Qt Event     │◄────│  (Background)   │
+│    Loop)        │     │                 │
+├─────────────────┤     ├─────────────────┤
+│ - UI Rendering  │     │ - CAN recv()    │
+│ - Event Handler │     │ - Protocol      │
+│ - Widget Update │     │   Decode        │
+└─────────────────┘     └─────────────────┘
+        ▲                       │
+        │    pyqtSignal         │
+        └───────────────────────┘
+----
+
+The CAN reader runs in a dedicated thread to prevent blocking the UI. Data is passed to the main thread via Qt signals (thread-safe).
+
+== Configuration
+
+Configuration is stored in YAML format (`config/default.yaml`):
+
+- Display settings (resolution, fullscreen)
+- CAN bus settings (channel, bitrate, base ID)
+- Unit preferences (mph/kmh, °C/°F, bar/psi)
+- Gauge thresholds (warning, critical)
+
+See `config/default.yaml` for full options.
+
+== Widget Color Coding
+
+All gauges use consistent color coding:
+
+[cols="1,1,2"]
+|===
+| Color | State | Meaning
+
+| image:https://via.placeholder.com/15/9EFF11/9EFF11[#9EFF11] Green
+| Normal
+| Value within safe operating range
+
+| image:https://via.placeholder.com/15/FFAA00/FFAA00[#FFAA00] Amber
+| Warning
+| Value approaching limit, driver awareness needed
+
+| image:https://via.placeholder.com/15/FF0000/FF0000[#FF0000] Red
+| Critical
+| Value at or beyond safe limit, immediate attention
+|===
+
+== References
+
+- https://github.com/valtsu23/DIY-Emu-Black-Dash[DIY-Emu-Black-Dash] - Reference implementation
+- https://github.com/designer2k2/EMUcan[EMUcan] - EMU Black CAN protocol
+- https://python-can.readthedocs.io/[python-can Documentation]

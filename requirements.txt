@@ -1,0 +1,20 @@
+# RoboDash Production Dependencies
+#
+# Install: pip install -r requirements.txt
+# Documentation: docs/SETUP.adoc
+
+# GUI Framework
+PyQt5>=5.15.0
+
+# CAN Bus Communication
+# Reference: https://python-can.readthedocs.io/
+python-can>=4.0.0
+
+# Configuration
+PyYAML>=6.0
+
+# Data processing (optional, for advanced smoothing)
+numpy>=1.21.0
+
+# Audio (for engine sound simulation in mock mode)
+pygame>=2.1.0

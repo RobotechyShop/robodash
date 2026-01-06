@@ -1,0 +1,207 @@
+= RoboDash Hardware Guide
+:toc:
+:toc-placement!:
+:icons: font
+
+Hardware specifications and wiring guide for RoboDash.
+
+toc::[]
+
+== System Overview
+
+[source]
+----
+┌─────────────────┐     CAN Bus      ┌─────────────────┐
+│  ECUMaster      │◄────────────────►│   MCP2515       │
+│  EMU Black      │   (500 kbps)     │   CAN Module    │
+└─────────────────┘                  └────────┬────────┘
+                                              │ SPI
+                                              ▼
+                                     ┌─────────────────┐
+                                     │  Raspberry Pi 4 │
+                                     │                 │
+                                     └────────┬────────┘
+                                              │ HDMI/DSI
+                                              ▼
+                                     ┌─────────────────┐
+                                     │ Corsair Xeneon  │
+                                     │ Edge Display    │
+                                     │ (1920 x 360)    │
+                                     └─────────────────┘
+----
+
+== Components
+
+=== Raspberry Pi 4
+
+[cols="1,2"]
+|===
+| Specification | Value
+
+| Model | Raspberry Pi 4 Model B
+| RAM | 4GB minimum (8GB recommended)
+| Storage | 32GB+ microSD (Class 10 / A2)
+| OS | Raspberry Pi OS 64-bit (Bookworm)
+|===
+
+=== Display
+
+[cols="1,2"]
+|===
+| Specification | Value
+
+| Model | Corsair Xeneon Edge
+| Resolution | 1920 x 360 pixels
+| Physical Size | 372mm x 120mm x 22mm
+| Interface | USB-C (power + data)
+| Touch | Capacitive touchscreen
+|===
+
+=== CAN Controller
+
+[cols="1,2"]
+|===
+| Specification | Value
+
+| Controller | MCP2515
+| Transceiver | TJA1050 or MCP2551
+| Interface | SPI
+| Crystal | 8MHz, 12MHz, or 16MHz
+|===
+
+IMPORTANT: Verify your module's crystal frequency before configuration.
+
+=== ECU
+
+[cols="1,2"]
+|===
+| Specification | Value
+
+| Model | ECUMaster EMU Black
+| CAN Speed | 500 kbps
+| CAN Base ID | 0x600 (default)
+| Protocol | EMU CAN Stream
+|===
+
+== Wiring
+
+=== MCP2515 to Raspberry Pi
+
+[cols="1,1,1,2"]
+|===
+| MCP2515 Pin | Pi Pin | GPIO | Notes
+
+| VCC | Pin 17 | 3.3V | Power for MCP2515 chip
+| GND | Pin 20 | GND | Ground
+| CS | Pin 24 | GPIO8 (CE0) | SPI Chip Select
+| SO | Pin 21 | GPIO9 (MISO) | SPI Data Out
+| SI | Pin 19 | GPIO10 (MOSI) | SPI Data In
+| SCK | Pin 23 | GPIO11 (SCLK) | SPI Clock
+| INT | Pin 22 | GPIO25 | Interrupt
+|===
+
+CAUTION: The MCP2515 must be powered from 3.3V. The TJA1050 transceiver requires 5V separately.
+
+[source]
+----
+Raspberry Pi GPIO Header
+          ┌─────────────────┐
+    3.3V ─┤ 1           2   ├─ 5V
+   SDA1 ─┤ 3           4   ├─ 5V ─────────────► TJA1050 VCC
+   SCL1 ─┤ 5           6   ├─ GND
+         ─┤ 7           8   ├─
+     GND ─┤ 9          10   ├─
+         ─┤11          12   ├─
+         ─┤13          14   ├─ GND
+         ─┤15          16   ├─
+    3.3V ─┤17          18   ├─ ◄─────────────── MCP2515 VCC
+    MOSI ─┤19          20   ├─ GND ◄─────────── MCP2515 GND
+    MISO ─┤21          22   ├─ GPIO25 ◄──────── MCP2515 INT
+    SCLK ─┤23          24   ├─ CE0 ◄─────────── MCP2515 CS
+     GND ─┤25          26   ├─
+          └─────────────────┘
+----
+
+=== CAN Bus Wiring
+
+[source]
+----
+ECU CAN Port                    MCP2515 Module
+┌─────────┐                     ┌─────────┐
+│  CAN_H  │◄───────────────────►│  CAN_H  │
+│  CAN_L  │◄───────────────────►│  CAN_L  │
+│   GND   │─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─│   GND   │  (optional)
+└─────────┘                     └─────────┘
+----
+
+IMPORTANT: CAN bus termination
+
+- Each end of the CAN bus requires a 120Ω termination resistor
+- EMU Black has internal termination (check ECU settings)
+- Some MCP2515 modules have a jumper for termination
+- Measure resistance between CAN_H and CAN_L - should be ~60Ω with both ends terminated
+
+=== Power Wiring
+
+[source]
+----
+Vehicle 12V ──►┌──────────────────┐
+               │  DC-DC Converter │
+               │  12V → 5V/3A     │
+               └────────┬─────────┘
+                        │
+                        ▼
+                ┌───────────────┐
+                │ Raspberry Pi  │
+                │ USB-C Power   │
+                └───────────────┘
+----
+
+CAUTION: Use a quality automotive DC-DC converter rated for at least 3A. The Raspberry Pi 4 requires stable 5V power. Voltage spikes during cranking can damage the Pi.
+
+== EMU Black Configuration
+
+In EMU Black software:
+
+1. Go to *CAN Bus* settings
+2. Set *CAN Bus Speed*: 500 kbit/sec
+3. Enable *Send EMU stream over CAN-Bus*
+4. Set *Base ID*: 600 (0x600)
+5. Set *Dashboard*: None (using custom)
+
+== Display Setup
+
+The Corsair Xeneon Edge connects via USB-C. For Raspberry Pi:
+
+1. Connect display USB-C to Pi USB-C port
+2. In `/boot/firmware/config.txt`, set resolution if needed:
+
+[source,ini]
+----
+# Force HDMI mode for Xeneon Edge
+hdmi_group=2
+hdmi_mode=87
+hdmi_cvt=1920 360 60 3 0 0 0
+----
+
+== Enclosure
+
+The 3D printed enclosure (`3d-model/`) houses:
+
+- Raspberry Pi 4
+- MCP2515 CAN module
+- Corsair Xeneon Edge display
+
+See link:BUILD.adoc[BUILD.adoc] for assembly instructions.
+
+== Part Numbers / Suppliers
+
+[cols="2,2,1"]
+|===
+| Component | Example Part | Notes
+
+| MCP2515 Module | Various on Amazon/eBay | Verify crystal frequency
+| DC-DC Converter | DROK LM2596 | 12V to 5V/3A
+| USB-C Cable | Short 90° cable | For clean routing
+| CAN Wiring | Twisted pair shielded | Keep runs short
+|===
