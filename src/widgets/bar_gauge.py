@@ -132,7 +132,9 @@ class BarGauge(BaseWidget):
             painter.setPen(QColor(self.theme.TEXT_SECONDARY))
 
             label_rect = QRect(rect.left(), rect.top(), rect.width(), label_height)
-            painter.drawText(label_rect, Qt.AlignLeft | Qt.AlignVCenter, self._label)
+            painter.drawText(
+                label_rect, int(Qt.AlignLeft | Qt.AlignVCenter), self._label
+            )
 
         # Draw value
         if self._show_value:
@@ -148,7 +150,9 @@ class BarGauge(BaseWidget):
                 bar_rect.height(),
             )
             painter.drawText(
-                value_rect, Qt.AlignRight | Qt.AlignVCenter, self.get_display_text()
+                value_rect,
+                int(Qt.AlignRight | Qt.AlignVCenter),
+                self.get_display_text(),
             )
 
     def _draw_vertical(self, painter: QPainter, rect: QRect) -> None:
@@ -188,7 +192,7 @@ class BarGauge(BaseWidget):
             painter.setPen(QColor(self.theme.TEXT_SECONDARY))
 
             label_rect = QRect(rect.left(), rect.top(), rect.width(), label_height)
-            painter.drawText(label_rect, Qt.AlignCenter, self._label)
+            painter.drawText(label_rect, int(Qt.AlignCenter), self._label)
 
         # Draw value
         if self._show_value:
@@ -200,7 +204,9 @@ class BarGauge(BaseWidget):
             value_rect = QRect(
                 rect.left(), rect.bottom() - value_height, rect.width(), value_height
             )
-            painter.drawText(value_rect, Qt.AlignCenter, self.get_formatted_value())
+            painter.drawText(
+                value_rect, int(Qt.AlignCenter), self.get_formatted_value()
+            )
 
     def _draw_zoned_fill(
         self, painter: QPainter, bar_rect: QRect, fill_rect: QRect
@@ -371,7 +377,7 @@ class FuelBar(BaseWidget):
         painter.setFont(font)
         painter.drawText(
             QRectF(padding, 2, 60, label_height),
-            Qt.AlignLeft | Qt.AlignVCenter,
+            int(Qt.AlignLeft | Qt.AlignVCenter),
             self._label,
         )
 
@@ -412,6 +418,6 @@ class FuelBar(BaseWidget):
         painter.setFont(value_font)
         painter.setPen(QColor("#FFFFFF"))
 
-        painter.drawText(bar_rect, Qt.AlignCenter, f"{int(self._value)}%")
+        painter.drawText(bar_rect, int(Qt.AlignCenter), f"{int(self._value)}%")
 
         painter.end()

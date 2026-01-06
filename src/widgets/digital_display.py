@@ -74,7 +74,9 @@ class DigitalDisplay(BaseWidget):
             painter.setPen(QColor(self.theme.TEXT_SECONDARY))
 
             label_rect = QRect(rect.left(), rect.top() + 2, rect.width(), label_space)
-            painter.drawText(label_rect, Qt.AlignHCenter | Qt.AlignTop, self._label)
+            painter.drawText(
+                label_rect, int(Qt.AlignHCenter | Qt.AlignTop), self._label
+            )
 
         # Draw main value in center
         value_font = QFont(font_name, value_font_size)
@@ -88,7 +90,7 @@ class DigitalDisplay(BaseWidget):
         value_rect = QRect(
             rect.left(), rect.top() + label_space, rect.width(), value_area_height
         )
-        painter.drawText(value_rect, Qt.AlignCenter, value_text)
+        painter.drawText(value_rect, int(Qt.AlignCenter), value_text)
 
         # Draw unit at bottom
         if self._show_unit and self._unit_label:
@@ -100,7 +102,7 @@ class DigitalDisplay(BaseWidget):
                 rect.left(), rect.bottom() - unit_space, rect.width(), unit_space
             )
             painter.drawText(
-                unit_rect, Qt.AlignHCenter | Qt.AlignVCenter, self._unit_label
+                unit_rect, int(Qt.AlignHCenter | Qt.AlignVCenter), self._unit_label
             )
 
         painter.end()
@@ -216,7 +218,7 @@ class GearIndicator(BaseWidget):
         painter.setPen(QColor(self.theme.TEXT_SECONDARY))
 
         label_rect = QRect(rect.left(), rect.top() + 5, rect.width(), label_space)
-        painter.drawText(label_rect, Qt.AlignHCenter | Qt.AlignTop, "GEAR")
+        painter.drawText(label_rect, int(Qt.AlignHCenter | Qt.AlignTop), "GEAR")
 
         # Draw gear - large, centered in remaining space
         gear_area_height = rect.height() - label_space
@@ -229,6 +231,6 @@ class GearIndicator(BaseWidget):
         gear_rect = QRect(
             rect.left(), rect.top() + label_space, rect.width(), gear_area_height
         )
-        painter.drawText(gear_rect, Qt.AlignCenter, self.get_gear_text())
+        painter.drawText(gear_rect, int(Qt.AlignCenter), self.get_gear_text())
 
         painter.end()

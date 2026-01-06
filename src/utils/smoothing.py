@@ -81,8 +81,10 @@ class ExponentialMovingAverage:
             self._value = value
             self._initialized = True
         else:
+            assert self._value is not None  # Guaranteed since _initialized is True
             self._value = self._alpha * value + (1 - self._alpha) * self._value
 
+        assert self._value is not None  # Type narrowing for return
         return self._value
 
     def reset(self, value: Optional[float] = None) -> None:

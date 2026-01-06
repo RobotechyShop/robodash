@@ -6,7 +6,7 @@ on a dark background optimized for visibility in racing conditions.
 """
 
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 
 @dataclass(frozen=True)
@@ -144,7 +144,10 @@ class RobotechyDarkTheme:
         return self.NORMAL
 
     def get_pressure_color(
-        self, value: float, warning_low: float = None, warning_high: float = None
+        self,
+        value: float,
+        warning_low: Optional[float] = None,
+        warning_high: Optional[float] = None,
     ) -> str:
         """
         Get color for pressure value.

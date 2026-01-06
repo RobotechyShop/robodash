@@ -91,7 +91,10 @@ class CircularGauge(BaseWidget):
         self.update()
 
     def set_tick_intervals(
-        self, major: float, minor: float = None, labels: float = None
+        self,
+        major: float,
+        minor: Optional[float] = None,
+        labels: Optional[float] = None,
     ) -> None:
         """
         Set tick mark intervals.
@@ -252,7 +255,7 @@ class CircularGauge(BaseWidget):
 
                 # Center text on position
                 text_rect = QRectF(x - 15, y - 8, 30, 16)
-                painter.drawText(text_rect, Qt.AlignCenter, label_text)
+                painter.drawText(text_rect, int(Qt.AlignCenter), label_text)
 
             value += self._label_interval
 
@@ -297,7 +300,7 @@ class CircularGauge(BaseWidget):
 
         # Position below center
         text_rect = QRectF(center.x() - 50, center.y() + radius * 0.3, 100, 30)
-        painter.drawText(text_rect, Qt.AlignCenter, self.get_formatted_value())
+        painter.drawText(text_rect, int(Qt.AlignCenter), self.get_formatted_value())
 
 
 class Tachometer(CircularGauge):

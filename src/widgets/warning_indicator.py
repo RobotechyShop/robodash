@@ -152,7 +152,7 @@ class WarningIndicator(BaseWidget):
             else:
                 painter.setPen(QColor(self.theme.TEXT_SECONDARY))
 
-            painter.drawText(indicator_rect, Qt.AlignCenter, self._label)
+            painter.drawText(indicator_rect, int(Qt.AlignCenter), self._label)
 
         painter.end()
 

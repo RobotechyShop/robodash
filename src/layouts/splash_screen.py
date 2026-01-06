@@ -173,11 +173,11 @@ class SplashScreen(QWidget):
         # Draw white shadow (offset slightly)
         shadow_rect = text_rect.translated(4, 4)
         painter.setPen(QColor("#FFFFFF"))
-        painter.drawText(shadow_rect, Qt.AlignHCenter | Qt.AlignTop, "R")
+        painter.drawText(shadow_rect, int(Qt.AlignHCenter | Qt.AlignTop), "R")
 
         # Draw green R on top
         painter.setPen(QColor(self._theme.ROBOTECHY_GREEN))
-        painter.drawText(text_rect, Qt.AlignHCenter | Qt.AlignTop, "R")
+        painter.drawText(text_rect, int(Qt.AlignHCenter | Qt.AlignTop), "R")
 
     def keyPressEvent(self, event) -> None:
         """
