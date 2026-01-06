@@ -20,33 +20,8 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
-@pytest.fixture(scope="session")
-def qapp():
-    """
-    Create a QApplication instance for the test session.
-
-    Required for all Qt widget tests.
-    """
-    from PyQt5.QtWidgets import QApplication
-
-    app = QApplication.instance()
-    if app is None:
-        app = QApplication([])
-
-    yield app
-
-
-@pytest.fixture
-def qtbot(qapp, request):
-    """
-    Enhanced qtbot fixture with screenshot support.
-
-    Provides methods for simulating user interaction with Qt widgets.
-    """
-    from pytestqt.qtbot import QtBot
-
-    bot = QtBot(qapp)
-    yield bot
+# pytest-qt provides qapp and qtbot fixtures automatically
+# We just need to ensure QT_QPA_PLATFORM is set (done above)
 
 
 @pytest.fixture

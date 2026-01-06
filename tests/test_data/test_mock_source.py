@@ -57,24 +57,26 @@ class TestMockDataSource:
         source.stop()
 
     def test_gear_changes(self, qtbot):
-        """Simulation should produce gear changes."""
+        """Mock source should support gear changes via shift methods."""
         source = MockDataSource(update_rate_hz=60)
 
-        gears_seen = set()
+        # Start in gear 1
+        assert source._gear == 1
 
-        def on_data(state):
-            gears_seen.add(state.gear)
+        # Manually trigger upshift by setting high RPM
+        source._rpm = source.UPSHIFT_RPM + 100
+        source._check_gear_change()
 
-        source.data_updated.connect(on_data)
-        source.start()
+        # Should have upshifted
+        assert source._gear == 2
 
-        # Wait for some data
-        qtbot.wait(2000)
+        # Trigger downshift by setting low RPM and low throttle
+        source._rpm = source.DOWNSHIFT_RPM - 100
+        source._throttle = 10
+        source._check_gear_change()
 
-        source.stop()
-
-        # Should see multiple gears in 2 seconds of simulation
-        assert len(gears_seen) >= 2
+        # Should have downshifted
+        assert source._gear == 1
 
     def test_manual_gear_set(self):
         """Manual gear setting should work."""

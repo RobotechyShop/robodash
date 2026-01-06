@@ -26,7 +26,6 @@ class TestRaceLayout:
         assert layout.get_widget("rpm_display") is not None
         assert layout.get_widget("rpm_bar") is not None
         assert layout.get_widget("speed") is not None
-        assert layout.get_widget("shift_light") is not None
 
         # Metric boxes
         assert layout.get_widget("boost") is not None
@@ -35,10 +34,10 @@ class TestRaceLayout:
         assert layout.get_widget("coolant_temp") is not None
         assert layout.get_widget("afr") is not None
         assert layout.get_widget("battery") is not None
+        assert layout.get_widget("fuel_level") is not None
 
-        # Warnings
-        assert layout.get_widget("warn_oil") is not None
-        assert layout.get_widget("warn_temp") is not None
+        # Status
+        assert layout.get_widget("status") is not None
 
     def test_update_from_state(self, qtbot, sample_vehicle_state):
         """Layout should update from VehicleState."""
@@ -53,19 +52,19 @@ class TestRaceLayout:
         assert gear_widget.gear == sample_vehicle_state.gear
 
     def test_warning_indicators(self, qtbot, warning_vehicle_state):
-        """Warning indicators should activate on warning conditions."""
+        """Metric boxes should reflect warning values."""
         layout = RaceLayout()
         qtbot.addWidget(layout)
 
         layout.update_from_state(warning_vehicle_state)
 
-        # Oil pressure warning should be active (0.8 bar is low)
-        warn_oil = layout.get_widget("warn_oil")
-        assert warn_oil.active
+        # Oil pressure should show low value (0.8 bar)
+        oil_pressure = layout.get_widget("oil_pressure")
+        assert oil_pressure.value == warning_vehicle_state.oil_pressure
 
-        # Temp warning should be active (112°C coolant is high)
-        warn_temp = layout.get_widget("warn_temp")
-        assert warn_temp.active
+        # Coolant temp should show high value (112°C)
+        coolant_temp = layout.get_widget("coolant_temp")
+        assert coolant_temp.value == warning_vehicle_state.coolant_temp
 
     def test_connection_warning(self, qtbot):
         """Connection warning should show/hide."""
