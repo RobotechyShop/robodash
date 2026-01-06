@@ -10,9 +10,9 @@ Provides common functionality for:
 
 from typing import Optional
 
-from PyQt5.QtWidgets import QWidget, QApplication
 from PyQt5.QtCore import Qt, pyqtProperty, pyqtSignal
 from PyQt5.QtGui import QColor
+from PyQt5.QtWidgets import QApplication, QWidget
 
 from ..themes import get_current_theme
 
@@ -148,7 +148,7 @@ class BaseWidget(QWidget):
         self,
         warning: Optional[float] = None,
         critical: Optional[float] = None,
-        warning_low: Optional[float] = None
+        warning_low: Optional[float] = None,
     ) -> None:
         """
         Set warning and critical thresholds.

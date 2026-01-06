@@ -7,14 +7,17 @@ Provides:
 """
 
 import math
-from typing import Optional, List, Tuple
+from typing import List, Optional, Tuple
 
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtCore import Qt, QRect, QRectF, QPointF
+from PyQt5.QtCore import QPointF, QRectF, Qt
 from PyQt5.QtGui import (
-    QPainter, QPen, QBrush, QColor, QFont,
-    QConicalGradient, QRadialGradient, QPainterPath
+    QBrush,
+    QColor,
+    QFont,
+    QPainter,
+    QPen,
 )
+from PyQt5.QtWidgets import QWidget
 
 from .base_widget import BaseWidget
 
@@ -36,7 +39,7 @@ class CircularGauge(BaseWidget):
 
         # Arc configuration (degrees, 0 = 3 o'clock, CCW positive)
         self._start_angle: float = 225  # Start at 7:30 position
-        self._end_angle: float = -45    # End at 4:30 position
+        self._end_angle: float = -45  # End at 4:30 position
         self._span_angle: float = self._start_angle - self._end_angle
 
         # Visual settings
@@ -88,10 +91,7 @@ class CircularGauge(BaseWidget):
         self.update()
 
     def set_tick_intervals(
-        self,
-        major: float,
-        minor: float = None,
-        labels: float = None
+        self, major: float, minor: float = None, labels: float = None
     ) -> None:
         """
         Set tick mark intervals.
@@ -153,11 +153,7 @@ class CircularGauge(BaseWidget):
         painter.end()
 
     def _draw_background_arc(
-        self,
-        painter: QPainter,
-        center: QPointF,
-        outer_r: float,
-        inner_r: float
+        self, painter: QPainter, center: QPointF, outer_r: float, inner_r: float
     ) -> None:
         """Draw the background arc."""
         pen = QPen(QColor(self.theme.GAUGE_ARC), self._arc_width)
@@ -168,22 +164,14 @@ class CircularGauge(BaseWidget):
             center.x() - outer_r + self._arc_width / 2,
             center.y() - outer_r + self._arc_width / 2,
             (outer_r - self._arc_width / 2) * 2,
-            (outer_r - self._arc_width / 2) * 2
+            (outer_r - self._arc_width / 2) * 2,
         )
 
         # Qt uses 16ths of a degree
-        painter.drawArc(
-            arc_rect,
-            int(self._end_angle * 16),
-            int(self._span_angle * 16)
-        )
+        painter.drawArc(arc_rect, int(self._end_angle * 16), int(self._span_angle * 16))
 
     def _draw_zones(
-        self,
-        painter: QPainter,
-        center: QPointF,
-        outer_r: float,
-        inner_r: float
+        self, painter: QPainter, center: QPointF, outer_r: float, inner_r: float
     ) -> None:
         """Draw colored zones."""
         for start_val, end_val, color in self._zones:
@@ -199,17 +187,12 @@ class CircularGauge(BaseWidget):
                 center.x() - outer_r + self._arc_width / 2,
                 center.y() - outer_r + self._arc_width / 2,
                 (outer_r - self._arc_width / 2) * 2,
-                (outer_r - self._arc_width / 2) * 2
+                (outer_r - self._arc_width / 2) * 2,
             )
 
             painter.drawArc(arc_rect, int(end_angle * 16), int(span * 16))
 
-    def _draw_ticks(
-        self,
-        painter: QPainter,
-        center: QPointF,
-        radius: float
-    ) -> None:
+    def _draw_ticks(self, painter: QPainter, center: QPointF, radius: float) -> None:
         """Draw tick marks."""
         pen_major = QPen(QColor(self.theme.TEXT_PRIMARY), 2)
         pen_minor = QPen(QColor(self.theme.TEXT_SECONDARY), 1)
@@ -245,12 +228,7 @@ class CircularGauge(BaseWidget):
 
             value += self._minor_tick_interval
 
-    def _draw_labels(
-        self,
-        painter: QPainter,
-        center: QPointF,
-        radius: float
-    ) -> None:
+    def _draw_labels(self, painter: QPainter, center: QPointF, radius: float) -> None:
         """Draw value labels."""
         font = QFont("Roboto", 10)
         painter.setFont(font)
@@ -278,12 +256,7 @@ class CircularGauge(BaseWidget):
 
             value += self._label_interval
 
-    def _draw_needle(
-        self,
-        painter: QPainter,
-        center: QPointF,
-        length: float
-    ) -> None:
+    def _draw_needle(self, painter: QPainter, center: QPointF, length: float) -> None:
         """Draw the gauge needle."""
         angle = math.radians(self._value_to_angle(self._value))
 
@@ -315,12 +288,7 @@ class CircularGauge(BaseWidget):
         painter.setBrush(QBrush(QColor(self.theme.ROBOTECHY_GREEN)))
         painter.drawEllipse(center, cap_radius - 3, cap_radius - 3)
 
-    def _draw_value(
-        self,
-        painter: QPainter,
-        center: QPointF,
-        radius: float
-    ) -> None:
+    def _draw_value(self, painter: QPainter, center: QPointF, radius: float) -> None:
         """Draw current value text."""
         font = QFont("Roboto", 14)
         font.setBold(True)
@@ -328,12 +296,7 @@ class CircularGauge(BaseWidget):
         painter.setPen(self.get_value_color())
 
         # Position below center
-        text_rect = QRectF(
-            center.x() - 50,
-            center.y() + radius * 0.3,
-            100,
-            30
-        )
+        text_rect = QRectF(center.x() - 50, center.y() + radius * 0.3, 100, 30)
         painter.drawText(text_rect, Qt.AlignCenter, self.get_formatted_value())
 
 

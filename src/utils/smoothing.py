@@ -10,7 +10,10 @@ Available smoothers:
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, Optional
+from typing import TYPE_CHECKING, Dict, Optional
+
+if TYPE_CHECKING:
+    from ..data.models import VehicleState
 
 
 class ExponentialMovingAverage:
@@ -119,26 +122,26 @@ class ValueSmoother:
 
     # Default alpha values per channel type
     # Lower alpha = more smoothing (slower response, easier to read)
-    DEFAULT_ALPHAS: Dict[str, float] = field(default_factory=lambda: {
-        # Readable response (heavily smoothed for easy reading)
-        "rpm": 0.08,
-        "speed": 0.05,  # Very smooth for readability
-        "tps": 0.3,
-        "boost_pressure": 0.2,
-
-        # Medium response
-        "afr": 0.15,
-        "oil_pressure": 0.15,
-        "battery_voltage": 0.15,
-        "fuel_level": 0.1,
-
-        # Slow response (temperatures change slowly anyway)
-        "coolant_temp": 0.1,
-        "oil_temp": 0.1,
-        "intake_temp": 0.1,
-        "egt1": 0.1,
-        "egt2": 0.1,
-    })
+    DEFAULT_ALPHAS: Dict[str, float] = field(
+        default_factory=lambda: {
+            # Readable response (heavily smoothed for easy reading)
+            "rpm": 0.08,
+            "speed": 0.05,  # Very smooth for readability
+            "tps": 0.3,
+            "boost_pressure": 0.2,
+            # Medium response
+            "afr": 0.15,
+            "oil_pressure": 0.15,
+            "battery_voltage": 0.15,
+            "fuel_level": 0.1,
+            # Slow response (temperatures change slowly anyway)
+            "coolant_temp": 0.1,
+            "oil_temp": 0.1,
+            "intake_temp": 0.1,
+            "egt1": 0.1,
+            "egt2": 0.1,
+        }
+    )
 
     def __post_init__(self):
         """Initialize internal state."""
@@ -146,10 +149,7 @@ class ValueSmoother:
         self._configs: Dict[str, SmootherConfig] = {}
 
     def configure(
-        self,
-        channel: str,
-        alpha: Optional[float] = None,
-        enabled: bool = True
+        self, channel: str, alpha: Optional[float] = None, enabled: bool = True
     ) -> None:
         """
         Configure smoothing for a channel.
@@ -193,8 +193,7 @@ class ValueSmoother:
         # Get or create filter
         if channel not in self._filters:
             self._filters[channel] = ExponentialMovingAverage(
-                alpha=config.alpha,
-                initial_value=value
+                alpha=config.alpha, initial_value=value
             )
             return value
 
@@ -263,10 +262,3 @@ class ValueSmoother:
             warnings=state.warnings,
             timestamp=state.timestamp,
         )
-
-
-# Type alias for VehicleState import
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ..data.models import VehicleState

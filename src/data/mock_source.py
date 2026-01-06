@@ -13,16 +13,16 @@ acceleration, gear changes, and fluctuating temperatures.
 Optional: Includes synthesized engine sound that varies with RPM.
 """
 
+import logging
 import math
 import random
-import logging
 from typing import Optional
 
-from PyQt5.QtCore import QTimer, QObject
+from PyQt5.QtCore import QObject, QTimer
 
+from ..utils.engine_sound import EngineSoundSynthesizer, create_engine_sound
 from .base import DataSource
-from .models import VehicleState, EngineFlags, WarningFlags
-from ..utils.engine_sound import create_engine_sound, EngineSoundSynthesizer
+from .models import EngineFlags, VehicleState, WarningFlags
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +66,7 @@ class MockDataSource(DataSource):
         update_rate_hz: int = 30,
         enable_warnings: bool = False,
         enable_sound: bool = False,
-        sound_volume: float = 0.5
+        sound_volume: float = 0.5,
     ):
         """
         Initialize mock data source.
@@ -251,10 +251,8 @@ class MockDataSource(DataSource):
             old_gear = self._gear
             self._gear += 1
             # RPM drop on upshift
-            ratio_change = (
-                self.GEAR_RATIOS[old_gear] / self.GEAR_RATIOS[self._gear]
-            )
-            self._rpm *= (1 / ratio_change)
+            ratio_change = self.GEAR_RATIOS[old_gear] / self.GEAR_RATIOS[self._gear]
+            self._rpm *= 1 / ratio_change
 
             # Play gear change sound
             if self._engine_sound:
@@ -268,10 +266,8 @@ class MockDataSource(DataSource):
             old_gear = self._gear
             self._gear -= 1
             # RPM rise on downshift
-            ratio_change = (
-                self.GEAR_RATIOS[old_gear] / self.GEAR_RATIOS[self._gear]
-            )
-            self._rpm *= (1 / ratio_change)
+            ratio_change = self.GEAR_RATIOS[old_gear] / self.GEAR_RATIOS[self._gear]
+            self._rpm *= 1 / ratio_change
             self._rpm = min(self._rpm, self.REDLINE_RPM)
 
             # Play gear change sound
@@ -287,9 +283,9 @@ class MockDataSource(DataSource):
 
         ratio = self.GEAR_RATIOS.get(self._gear, 1.0)
         # Speed = (RPM * tire_circumference * 60) / (gear_ratio * final_drive * 1000)
-        speed_mps = (
-            self._rpm * self.TIRE_CIRCUMFERENCE
-        ) / (ratio * self.FINAL_DRIVE * 60)
+        speed_mps = (self._rpm * self.TIRE_CIRCUMFERENCE) / (
+            ratio * self.FINAL_DRIVE * 60
+        )
         speed_kph = speed_mps * 3.6
 
         return max(0, speed_kph)

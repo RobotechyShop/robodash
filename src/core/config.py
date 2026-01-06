@@ -5,16 +5,25 @@ Handles loading, saving, and runtime access to user preferences
 and application settings.
 """
 
-import yaml
 import logging
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Any, Dict, List, Optional
+
+import yaml
 
 from .constants import (
-    SCREEN_WIDTH, SCREEN_HEIGHT, TARGET_FPS,
-    CAN_CHANNEL, CAN_BITRATE, EMU_BASE_ID, CAN_TIMEOUT_MS,
-    GaugeDefaults, Units, Layouts, DEFAULT_CONFIG_PATH
+    CAN_BITRATE,
+    CAN_CHANNEL,
+    CAN_TIMEOUT_MS,
+    DEFAULT_CONFIG_PATH,
+    EMU_BASE_ID,
+    SCREEN_HEIGHT,
+    SCREEN_WIDTH,
+    TARGET_FPS,
+    GaugeDefaults,
+    Layouts,
+    Units,
 )
 
 logger = logging.getLogger(__name__)
@@ -23,6 +32,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class GaugeConfig:
     """Configuration for a single gauge."""
+
     min: float
     max: float
     warning: Optional[float] = None
@@ -34,6 +44,7 @@ class GaugeConfig:
 @dataclass
 class DisplayConfig:
     """Display settings."""
+
     width: int = SCREEN_WIDTH
     height: int = SCREEN_HEIGHT
     fullscreen: bool = True
@@ -44,6 +55,7 @@ class DisplayConfig:
 @dataclass
 class CANConfig:
     """CAN bus settings."""
+
     enabled: bool = True
     channel: str = CAN_CHANNEL
     bitrate: int = CAN_BITRATE
@@ -54,7 +66,8 @@ class CANConfig:
 @dataclass
 class UnitsConfig:
     """Unit preferences."""
-    speed: str = Units.SPEED_MPH      # UK default
+
+    speed: str = Units.SPEED_MPH  # UK default
     temperature: str = Units.TEMP_CELSIUS
     pressure: str = Units.PRESSURE_BAR
 
@@ -111,7 +124,7 @@ class Config:
                     {"start": 0, "end": 6000, "color": "#9EFF11"},
                     {"start": 6000, "end": 6800, "color": "#FFAA00"},
                     {"start": 6800, "end": 8000, "color": "#FF0000"},
-                ]
+                ],
             ),
             "speed": GaugeConfig(
                 min=GaugeDefaults.SPEED_MIN,
@@ -169,7 +182,7 @@ class Config:
             return cls()
 
         try:
-            with open(config_path, 'r') as f:
+            with open(config_path, "r") as f:
                 data = yaml.safe_load(f) or {}
 
             return cls._from_dict(data)
@@ -269,15 +282,12 @@ class Config:
             "layout": {"current": self.current_layout},
             "theme": {"current": self.theme},
             "splash": {"duration_ms": self.splash_duration_ms},
-            "gauges": {
-                name: asdict(gauge)
-                for name, gauge in self.gauges.items()
-            },
+            "gauges": {name: asdict(gauge) for name, gauge in self.gauges.items()},
         }
 
         config_path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(config_path, 'w') as f:
+        with open(config_path, "w") as f:
             yaml.dump(data, f, default_flow_style=False, sort_keys=False)
 
         logger.info(f"Configuration saved to {config_path}")

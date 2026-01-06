@@ -6,9 +6,9 @@ Used for secondary metrics like temperatures, pressures, and voltages.
 
 from typing import Optional
 
+from PyQt5.QtCore import QRectF, Qt
+from PyQt5.QtGui import QBrush, QColor, QFont, QPainter, QPen
 from PyQt5.QtWidgets import QWidget
-from PyQt5.QtCore import Qt, QRect, QRectF
-from PyQt5.QtGui import QPainter, QPen, QBrush, QColor, QFont
 
 from .base_widget import BaseWidget, get_custom_font
 
@@ -28,11 +28,7 @@ class MetricBox(BaseWidget):
     └─────────────┘
     """
 
-    def __init__(
-        self,
-        label: str = "",
-        parent: Optional[QWidget] = None
-    ):
+    def __init__(self, label: str = "", parent: Optional[QWidget] = None):
         """
         Initialize metric box.
 
@@ -85,20 +81,23 @@ class MetricBox(BaseWidget):
         # Draw background and border
         painter.setPen(QPen(QColor(self.theme.BOX_BORDER), 1))
         painter.setBrush(QBrush(QColor(self.theme.BOX_BACKGROUND)))
-        painter.drawRoundedRect(
-            rect.adjusted(1, 1, -1, -1),
-            4, 4
-        )
+        painter.drawRoundedRect(rect.adjusted(1, 1, -1, -1), 4, 4)
 
         # Calculate text areas
         inner_rect = rect.adjusted(padding, padding, -padding, -padding)
 
-        label_height = inner_rect.height() * 0.3 if not self._compact else inner_rect.height() * 0.25
+        label_height = (
+            inner_rect.height() * 0.3
+            if not self._compact
+            else inner_rect.height() * 0.25
+        )
         value_height = inner_rect.height() - label_height
 
         # Font sizes - larger for readability
         label_font_size = 14 if not self._compact else 10
-        value_font_size = int(value_height * 0.6) if not self._compact else int(value_height * 0.5)
+        value_font_size = (
+            int(value_height * 0.6) if not self._compact else int(value_height * 0.5)
+        )
         value_font_size = max(value_font_size, 18)  # Minimum readable size
 
         # Get custom font
@@ -110,10 +109,7 @@ class MetricBox(BaseWidget):
         painter.setPen(QColor(self.theme.BOX_LABEL))
 
         label_rect = QRectF(
-            inner_rect.left(),
-            inner_rect.top(),
-            inner_rect.width(),
-            label_height
+            inner_rect.left(), inner_rect.top(), inner_rect.width(), label_height
         )
         painter.drawText(label_rect, Qt.AlignLeft | Qt.AlignTop, self._label)
 
@@ -129,7 +125,7 @@ class MetricBox(BaseWidget):
             inner_rect.left(),
             inner_rect.top() + label_height,
             inner_rect.width(),
-            value_height * 0.7
+            value_height * 0.7,
         )
         painter.drawText(value_rect, Qt.AlignRight | Qt.AlignVCenter, value_text)
 
@@ -143,7 +139,7 @@ class MetricBox(BaseWidget):
                 inner_rect.left(),
                 inner_rect.bottom() - label_height,
                 inner_rect.width(),
-                label_height
+                label_height,
             )
             painter.drawText(unit_rect, Qt.AlignLeft | Qt.AlignBottom, self._unit_label)
 
@@ -153,11 +149,7 @@ class MetricBox(BaseWidget):
 class TemperatureBox(MetricBox):
     """Pre-configured metric box for temperatures."""
 
-    def __init__(
-        self,
-        label: str = "Temperature",
-        parent: Optional[QWidget] = None
-    ):
+    def __init__(self, label: str = "Temperature", parent: Optional[QWidget] = None):
         """Initialize temperature box."""
         super().__init__(label, parent)
 
@@ -169,11 +161,7 @@ class TemperatureBox(MetricBox):
 class PressureBox(MetricBox):
     """Pre-configured metric box for pressures."""
 
-    def __init__(
-        self,
-        label: str = "Pressure",
-        parent: Optional[QWidget] = None
-    ):
+    def __init__(self, label: str = "Pressure", parent: Optional[QWidget] = None):
         """Initialize pressure box."""
         super().__init__(label, parent)
 
@@ -185,11 +173,7 @@ class PressureBox(MetricBox):
 class VoltageBox(MetricBox):
     """Pre-configured metric box for voltage."""
 
-    def __init__(
-        self,
-        label: str = "Battery",
-        parent: Optional[QWidget] = None
-    ):
+    def __init__(self, label: str = "Battery", parent: Optional[QWidget] = None):
         """Initialize voltage box."""
         super().__init__(label, parent)
 

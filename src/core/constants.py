@@ -5,6 +5,8 @@ Reference: https://github.com/valtsu23/DIY-Emu-Black-Dash
 ECU Protocol: https://github.com/designer2k2/EMUcan
 """
 
+from pathlib import Path
+
 # =============================================================================
 # Display Configuration
 # =============================================================================
@@ -35,6 +37,7 @@ CAN_TIMEOUT_MS = 1000
 # =============================================================================
 # Robotechy Brand Colors
 # =============================================================================
+
 
 class Colors:
     """Robotechy dark theme color palette."""
@@ -73,9 +76,11 @@ class Colors:
     RPM_WARNING = "#FFAA00"
     RPM_REDLINE = "#FF0000"
 
+
 # =============================================================================
 # Gauge Defaults
 # =============================================================================
+
 
 class GaugeDefaults:
     """Default gauge ranges and thresholds."""
@@ -124,9 +129,11 @@ class GaugeDefaults:
     BATTERY_WARNING_LOW = 12.0
     BATTERY_WARNING_HIGH = 15.0
 
+
 # =============================================================================
 # Unit Systems
 # =============================================================================
+
 
 class Units:
     """Unit system identifiers."""
@@ -144,9 +151,11 @@ class Units:
     PRESSURE_PSI = "psi"
     PRESSURE_KPA = "kpa"
 
+
 # =============================================================================
 # Layout Identifiers
 # =============================================================================
+
 
 class Layouts:
     """Available dashboard layout identifiers."""
@@ -155,12 +164,10 @@ class Layouts:
     STREET = "street"
     DIAGNOSTIC = "diagnostic"
 
+
 # =============================================================================
 # Application Paths
 # =============================================================================
-
-import os
-from pathlib import Path
 
 # Project root directory
 PROJECT_ROOT = Path(__file__).parent.parent.parent

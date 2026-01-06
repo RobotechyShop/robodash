@@ -52,7 +52,7 @@ def qtbot(qapp, request):
 @pytest.fixture
 def sample_vehicle_state():
     """Create a sample VehicleState for testing."""
-    from src.data.models import VehicleState, EngineFlags
+    from src.data.models import EngineFlags, VehicleState
 
     return VehicleState(
         rpm=5500,
@@ -133,8 +133,6 @@ def save_widget_screenshot(widget, path: Path, name: str) -> Path:
     Returns:
         Path to saved screenshot.
     """
-    from PyQt5.QtWidgets import QWidget
-
     # Ensure widget is shown and painted
     widget.show()
     widget.repaint()
@@ -152,6 +150,8 @@ def save_widget_screenshot(widget, path: Path, name: str) -> Path:
 @pytest.fixture
 def capture_screenshot(screenshot_dir):
     """Fixture that provides screenshot capture function."""
+
     def _capture(widget, name: str) -> Path:
         return save_widget_screenshot(widget, screenshot_dir, name)
+
     return _capture

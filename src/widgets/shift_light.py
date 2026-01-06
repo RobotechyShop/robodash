@@ -5,11 +5,11 @@ Visual indicator that activates progressively as RPM approaches
 the shift point, with flash at redline.
 """
 
-from typing import Optional, List
+from typing import Optional
 
+from PyQt5.QtCore import QRectF, Qt, QTimer
+from PyQt5.QtGui import QBrush, QColor, QPainter, QPen
 from PyQt5.QtWidgets import QWidget
-from PyQt5.QtCore import Qt, QTimer, QRectF
-from PyQt5.QtGui import QPainter, QBrush, QColor, QPen
 
 from .base_widget import BaseWidget
 
@@ -37,8 +37,8 @@ class ShiftLight(BaseWidget):
 
         # RPM thresholds
         self._activation_rpm: int = 5000  # Start lighting
-        self._shift_rpm: int = 6800       # Yellow zone
-        self._redline_rpm: int = 7200     # Red zone / flash
+        self._shift_rpm: int = 6800  # Yellow zone
+        self._redline_rpm: int = 7200  # Red zone / flash
         self._max_rpm: int = 8000
 
         # Flash state
@@ -58,11 +58,7 @@ class ShiftLight(BaseWidget):
         self.setMinimumSize(200, 30)
 
     def set_rpm_thresholds(
-        self,
-        activation: int,
-        shift: int,
-        redline: int,
-        max_rpm: int = 8000
+        self, activation: int, shift: int, redline: int, max_rpm: int = 8000
     ) -> None:
         """
         Set RPM thresholds for shift light behavior.
@@ -174,15 +170,12 @@ class ShiftLight(BaseWidget):
 
         painter.end()
 
-    def _draw_horizontal(
-        self,
-        painter: QPainter,
-        rect,
-        active_count: int
-    ) -> None:
+    def _draw_horizontal(self, painter: QPainter, rect, active_count: int) -> None:
         """Draw horizontal shift light bar."""
         # Calculate LED dimensions
-        total_width = self._led_count * self._led_size + (self._led_count - 1) * self._led_spacing
+        total_width = (
+            self._led_count * self._led_size + (self._led_count - 1) * self._led_spacing
+        )
         start_x = rect.center().x() - total_width / 2
         center_y = rect.center().y()
 
@@ -191,10 +184,7 @@ class ShiftLight(BaseWidget):
             is_active = i < active_count
 
             led_rect = QRectF(
-                x,
-                center_y - self._led_size / 2,
-                self._led_size,
-                self._led_size
+                x, center_y - self._led_size / 2, self._led_size, self._led_size
             )
 
             # Draw LED
@@ -222,18 +212,15 @@ class ShiftLight(BaseWidget):
                     led_rect.left() + led_rect.width() * 0.2,
                     led_rect.top() + led_rect.height() * 0.15,
                     led_rect.width() * 0.3,
-                    led_rect.height() * 0.25
+                    led_rect.height() * 0.25,
                 )
                 painter.drawEllipse(highlight_rect)
 
-    def _draw_vertical(
-        self,
-        painter: QPainter,
-        rect,
-        active_count: int
-    ) -> None:
+    def _draw_vertical(self, painter: QPainter, rect, active_count: int) -> None:
         """Draw vertical shift light bar."""
-        total_height = self._led_count * self._led_size + (self._led_count - 1) * self._led_spacing
+        total_height = (
+            self._led_count * self._led_size + (self._led_count - 1) * self._led_spacing
+        )
         center_x = rect.center().x()
         start_y = rect.center().y() + total_height / 2  # Start from bottom
 
@@ -242,10 +229,7 @@ class ShiftLight(BaseWidget):
             is_active = i < active_count
 
             led_rect = QRectF(
-                center_x - self._led_size / 2,
-                y,
-                self._led_size,
-                self._led_size
+                center_x - self._led_size / 2, y, self._led_size, self._led_size
             )
 
             color = self._get_led_color(i, is_active)

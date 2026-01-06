@@ -9,9 +9,9 @@ Provides visual indicators for:
 
 from typing import Optional
 
+from PyQt5.QtCore import QRectF, Qt, QTimer
+from PyQt5.QtGui import QBrush, QColor, QFont, QPainter, QPen
 from PyQt5.QtWidgets import QWidget
-from PyQt5.QtCore import Qt, QTimer, QRectF
-from PyQt5.QtGui import QPainter, QBrush, QColor, QPen, QFont
 
 from .base_widget import BaseWidget
 
@@ -26,11 +26,7 @@ class WarningIndicator(BaseWidget):
     - Flashing (active, blinking)
     """
 
-    def __init__(
-        self,
-        label: str = "",
-        parent: Optional[QWidget] = None
-    ):
+    def __init__(self, label: str = "", parent: Optional[QWidget] = None):
         """
         Initialize warning indicator.
 
@@ -128,7 +124,7 @@ class WarningIndicator(BaseWidget):
             center.x() - self._indicator_size / 2,
             center.y() - self._indicator_size / 2 - 5,
             self._indicator_size,
-            self._indicator_size
+            self._indicator_size,
         )
 
         # Glow effect for active state
@@ -168,11 +164,7 @@ class WarningIndicator(BaseWidget):
 class StatusLED(WarningIndicator):
     """Simple LED-style status indicator."""
 
-    def __init__(
-        self,
-        label: str = "",
-        parent: Optional[QWidget] = None
-    ):
+    def __init__(self, label: str = "", parent: Optional[QWidget] = None):
         """Initialize status LED."""
         super().__init__(label, parent)
 
@@ -202,7 +194,7 @@ class StatusLED(WarningIndicator):
             center.x() - self._indicator_size / 2,
             center.y() - self._indicator_size / 2,
             self._indicator_size,
-            self._indicator_size
+            self._indicator_size,
         )
 
         painter.setPen(QPen(QColor(self.theme.BORDER), 1))

@@ -15,12 +15,12 @@ CAN Configuration:
 - DLC: 8 bytes per frame
 """
 
-import struct
 import logging
-from typing import Optional, Dict, Any
+import struct
 import time
+from typing import Dict, Optional
 
-from .models import VehicleState, EngineFlags, WarningFlags
+from .models import EngineFlags, VehicleState, WarningFlags
 
 logger = logging.getLogger(__name__)
 
@@ -57,9 +57,7 @@ class EMUProtocolDecoder:
         self._state = VehicleState()
 
     def process_message(
-        self,
-        arbitration_id: int,
-        data: bytes
+        self, arbitration_id: int, data: bytes
     ) -> Optional[VehicleState]:
         """
         Process a CAN message and return VehicleState if complete.
@@ -244,7 +242,7 @@ class EMUProtocolDecoder:
     def time_since_last_complete(self) -> float:
         """Get seconds since last complete state was received."""
         if self._last_complete_time == 0:
-            return float('inf')
+            return float("inf")
         return time.time() - self._last_complete_time
 
     @property

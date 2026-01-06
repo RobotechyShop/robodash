@@ -8,10 +8,10 @@ Provides common functionality for all dashboard layouts including:
 """
 
 from abc import ABCMeta, abstractmethod
-from typing import Optional, Dict, Any
+from typing import Dict, Optional
 
-from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget
 from PyQt5.sip import wrappertype
 
 from ..data.models import VehicleState
@@ -21,6 +21,7 @@ from ..themes import get_current_theme
 # Combined metaclass to resolve QWidget + ABC conflict
 class QWidgetABCMeta(wrappertype, ABCMeta):
     """Metaclass combining PyQt5's wrappertype with ABCMeta."""
+
     pass
 
 
@@ -105,7 +106,7 @@ class BaseLayout(QWidget, metaclass=QWidgetABCMeta):
         """Refresh theme for all widgets."""
         self._theme = get_current_theme()
         for widget in self._widgets.values():
-            if hasattr(widget, 'refresh_theme'):
+            if hasattr(widget, "refresh_theme"):
                 widget.refresh_theme()
 
     def show_connection_warning(self) -> None:

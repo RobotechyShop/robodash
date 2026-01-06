@@ -9,9 +9,9 @@ Provides clean, high-visibility numeric displays for:
 
 from typing import Optional
 
+from PyQt5.QtCore import QRect, Qt
+from PyQt5.QtGui import QColor, QFont, QPainter
 from PyQt5.QtWidgets import QWidget
-from PyQt5.QtCore import Qt, QRect
-from PyQt5.QtGui import QPainter, QFont, QColor, QPen
 
 from .base_widget import BaseWidget, get_custom_font
 
@@ -57,7 +57,9 @@ class DigitalDisplay(BaseWidget):
         # Font sizes - scale to available space
         label_font_size = 14
         unit_font_size = 18
-        value_font_size = min(180, max(30, int(value_area_height * self._font_size_ratio)))
+        value_font_size = min(
+            180, max(30, int(value_area_height * self._font_size_ratio))
+        )
 
         # Get value color
         value_color = self.get_value_color()
@@ -71,12 +73,7 @@ class DigitalDisplay(BaseWidget):
             painter.setFont(label_font)
             painter.setPen(QColor(self.theme.TEXT_SECONDARY))
 
-            label_rect = QRect(
-                rect.left(),
-                rect.top() + 2,
-                rect.width(),
-                label_space
-            )
+            label_rect = QRect(rect.left(), rect.top() + 2, rect.width(), label_space)
             painter.drawText(label_rect, Qt.AlignHCenter | Qt.AlignTop, self._label)
 
         # Draw main value in center
@@ -89,10 +86,7 @@ class DigitalDisplay(BaseWidget):
 
         # Value occupies middle section
         value_rect = QRect(
-            rect.left(),
-            rect.top() + label_space,
-            rect.width(),
-            value_area_height
+            rect.left(), rect.top() + label_space, rect.width(), value_area_height
         )
         painter.drawText(value_rect, Qt.AlignCenter, value_text)
 
@@ -103,12 +97,11 @@ class DigitalDisplay(BaseWidget):
             painter.setPen(QColor(self.theme.TEXT_SECONDARY))
 
             unit_rect = QRect(
-                rect.left(),
-                rect.bottom() - unit_space,
-                rect.width(),
-                unit_space
+                rect.left(), rect.bottom() - unit_space, rect.width(), unit_space
             )
-            painter.drawText(unit_rect, Qt.AlignHCenter | Qt.AlignVCenter, self._unit_label)
+            painter.drawText(
+                unit_rect, Qt.AlignHCenter | Qt.AlignVCenter, self._unit_label
+            )
 
         painter.end()
 
@@ -234,10 +227,7 @@ class GearIndicator(BaseWidget):
         painter.setPen(self.get_gear_color())
 
         gear_rect = QRect(
-            rect.left(),
-            rect.top() + label_space,
-            rect.width(),
-            gear_area_height
+            rect.left(), rect.top() + label_space, rect.width(), gear_area_height
         )
         painter.drawText(gear_rect, Qt.AlignCenter, self.get_gear_text())
 

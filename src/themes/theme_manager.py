@@ -5,13 +5,13 @@ Handles loading, applying, and switching between themes.
 """
 
 import logging
-from typing import Dict, Optional, Type
 from dataclasses import dataclass
+from typing import Dict, Optional
 
-from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QFont, QFontDatabase
+from PyQt5.QtWidgets import QApplication
 
-from .robotechy_dark import RobotechyDarkTheme, DEFAULT_THEME
+from .robotechy_dark import DEFAULT_THEME, RobotechyDarkTheme
 
 logger = logging.getLogger(__name__)
 
@@ -119,7 +119,7 @@ class ThemeManager:
         if roboto_path.exists():
             font_id = QFontDatabase.addApplicationFont(str(roboto_path))
             if font_id >= 0:
-                logger.info(f"Loaded font: Roboto")
+                logger.info("Loaded font: Roboto")
             else:
                 logger.warning(f"Failed to load font: {roboto_path}")
 

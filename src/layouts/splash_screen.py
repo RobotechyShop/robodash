@@ -6,13 +6,16 @@ while initializing CAN communication and loading resources.
 """
 
 from typing import Optional
-from pathlib import Path
 
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QGraphicsOpacityEffect, QApplication
-from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QSize, QPropertyAnimation, QEasingCurve
-from PyQt5.QtGui import QPainter, QColor, QPixmap, QFont
+from PyQt5.QtCore import QEasingCurve, QPropertyAnimation, Qt, QTimer, pyqtSignal
+from PyQt5.QtGui import QColor, QFont, QPainter, QPixmap
+from PyQt5.QtWidgets import (
+    QApplication,
+    QGraphicsOpacityEffect,
+    QWidget,
+)
 
-from ..core.constants import SCREEN_WIDTH, SCREEN_HEIGHT, ROBOTECHY_LOGO_PATH
+from ..core.constants import ROBOTECHY_LOGO_PATH, SCREEN_HEIGHT, SCREEN_WIDTH
 from ..themes import get_current_theme
 
 
@@ -32,11 +35,7 @@ class SplashScreen(QWidget):
     # Signal emitted when splash is complete
     finished = pyqtSignal()
 
-    def __init__(
-        self,
-        duration_ms: int = 2500,
-        parent: Optional[QWidget] = None
-    ):
+    def __init__(self, duration_ms: int = 2500, parent: Optional[QWidget] = None):
         """
         Initialize splash screen.
 
@@ -91,8 +90,7 @@ class SplashScreen(QWidget):
             # Scale to appropriate size (about 1/3 of screen height)
             target_height = SCREEN_HEIGHT * 0.5
             self._logo_pixmap = self._logo_pixmap.scaledToHeight(
-                int(target_height),
-                Qt.SmoothTransformation
+                int(target_height), Qt.SmoothTransformation
             )
         else:
             # Create placeholder if logo not found
@@ -155,10 +153,7 @@ class SplashScreen(QWidget):
         painter.end()
 
     def _draw_placeholder_logo(
-        self,
-        painter: QPainter,
-        center_x: int,
-        center_y: int
+        self, painter: QPainter, center_x: int, center_y: int
     ) -> None:
         """Draw a placeholder R with shadow if logo file not found."""
         # Try to use custom font if available

@@ -19,19 +19,27 @@ Layout (1920x720):
 
 from typing import Optional
 
-from PyQt5.QtWidgets import (
-    QWidget, QHBoxLayout, QVBoxLayout, QGridLayout,
-    QFrame, QLabel, QSizePolicy
-)
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import (
+    QFrame,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QVBoxLayout,
+    QWidget,
+)
 
-from .base_layout import BaseLayout
+from ..core.constants import SCREEN_HEIGHT, SCREEN_WIDTH
 from ..data.models import VehicleState
 from ..widgets import (
-    DigitalDisplay, GearIndicator, SpeedDisplay,
-    RPMBar, MetricBox, FuelBar
+    DigitalDisplay,
+    FuelBar,
+    GearIndicator,
+    MetricBox,
+    RPMBar,
+    SpeedDisplay,
 )
-from ..core.constants import SCREEN_WIDTH, SCREEN_HEIGHT
+from .base_layout import BaseLayout
 
 
 class RaceLayout(BaseLayout):

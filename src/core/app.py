@@ -12,17 +12,17 @@ import logging
 import sys
 from typing import Optional
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QFont, QIcon, QPalette, QColor, QFontDatabase
+from PyQt5.QtGui import QColor, QFontDatabase, QIcon, QPalette
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
 
-from .config import Config
-from .constants import SCREEN_WIDTH, SCREEN_HEIGHT, ROBOTECHY_LOGO_PATH, FONTS_DIR
-from ..data import DataSource, MockDataSource, CANDataSource
+from ..data import CANDataSource, DataSource, MockDataSource
 from ..data.can_source import is_can_available
-from ..layouts import SplashScreen, RaceLayout
+from ..layouts import RaceLayout, SplashScreen
 from ..themes import get_theme_manager
 from ..utils import ValueSmoother
+from .config import Config
+from .constants import FONTS_DIR, ROBOTECHY_LOGO_PATH, SCREEN_HEIGHT, SCREEN_WIDTH
 
 logger = logging.getLogger(__name__)
 
@@ -67,10 +67,7 @@ class DashboardWindow(QMainWindow):
     """
 
     def __init__(
-        self,
-        config: Config,
-        data_source: DataSource,
-        parent: Optional[QWidget] = None
+        self, config: Config, data_source: DataSource, parent: Optional[QWidget] = None
     ):
         """
         Initialize dashboard window.
@@ -185,10 +182,7 @@ class DashboardApp:
     """
 
     def __init__(
-        self,
-        config: Config,
-        use_mock: bool = False,
-        enable_sound: bool = False
+        self, config: Config, use_mock: bool = False, enable_sound: bool = False
     ):
         """
         Initialize application.
@@ -253,7 +247,7 @@ class DashboardApp:
             logger.info("Using mock data source (forced)")
             self.data_source = MockDataSource(
                 update_rate_hz=self.config.update_rate_hz,
-                enable_sound=self.enable_sound
+                enable_sound=self.enable_sound,
             )
             if self.enable_sound:
                 self.splash.set_status("Simulation mode (with sound)")
@@ -271,14 +265,14 @@ class DashboardApp:
                 self.splash.set_status("Using simulation mode")
                 self.data_source = MockDataSource(
                     update_rate_hz=self.config.update_rate_hz,
-                    enable_sound=self.enable_sound
+                    enable_sound=self.enable_sound,
                 )
         else:
             logger.info("CAN not available, using mock data source")
             self.splash.set_status("Simulation mode")
             self.data_source = MockDataSource(
                 update_rate_hz=self.config.update_rate_hz,
-                enable_sound=self.enable_sound
+                enable_sound=self.enable_sound,
             )
 
     def _on_splash_finished(self) -> None:

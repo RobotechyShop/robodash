@@ -29,74 +29,74 @@ class RobotechyDarkTheme:
     # Backgrounds
     # =========================================================================
 
-    BACKGROUND: str = "#0A0A0A"           # Main background
-    SURFACE: str = "#1A1A1A"              # Card/widget background
-    SURFACE_ELEVATED: str = "#242424"     # Elevated surfaces
-    SURFACE_HOVER: str = "#2A2A2A"        # Hover state
+    BACKGROUND: str = "#0A0A0A"  # Main background
+    SURFACE: str = "#1A1A1A"  # Card/widget background
+    SURFACE_ELEVATED: str = "#242424"  # Elevated surfaces
+    SURFACE_HOVER: str = "#2A2A2A"  # Hover state
 
     # =========================================================================
     # Borders
     # =========================================================================
 
-    BORDER: str = "#333333"               # Standard borders
-    BORDER_LIGHT: str = "#444444"         # Light borders
-    BORDER_ACCENT: str = "#9EFF11"        # Accent borders
+    BORDER: str = "#333333"  # Standard borders
+    BORDER_LIGHT: str = "#444444"  # Light borders
+    BORDER_ACCENT: str = "#9EFF11"  # Accent borders
 
     # =========================================================================
     # Text Colors
     # =========================================================================
 
-    TEXT_PRIMARY: str = "#FFFFFF"         # Primary text
-    TEXT_SECONDARY: str = "#888888"       # Secondary/label text
-    TEXT_DISABLED: str = "#555555"        # Disabled text
-    TEXT_ACCENT: str = "#9EFF11"          # Accent text
+    TEXT_PRIMARY: str = "#FFFFFF"  # Primary text
+    TEXT_SECONDARY: str = "#888888"  # Secondary/label text
+    TEXT_DISABLED: str = "#555555"  # Disabled text
+    TEXT_ACCENT: str = "#9EFF11"  # Accent text
 
     # =========================================================================
     # Status Colors
     # =========================================================================
 
-    NORMAL: str = "#9EFF11"               # Normal/good values
-    WARNING: str = "#FFAA00"              # Warning values
-    CRITICAL: str = "#FF0000"             # Critical/danger values
-    INFO: str = "#00AAFF"                 # Informational
+    NORMAL: str = "#9EFF11"  # Normal/good values
+    WARNING: str = "#FFAA00"  # Warning values
+    CRITICAL: str = "#FF0000"  # Critical/danger values
+    INFO: str = "#00AAFF"  # Informational
 
     # =========================================================================
     # Gauge Colors
     # =========================================================================
 
-    GAUGE_BACKGROUND: str = "#1A1A1A"     # Gauge face background
-    GAUGE_ARC: str = "#333333"            # Unlit gauge arc
-    GAUGE_NEEDLE: str = "#FFFFFF"         # Needle color
+    GAUGE_BACKGROUND: str = "#1A1A1A"  # Gauge face background
+    GAUGE_ARC: str = "#333333"  # Unlit gauge arc
+    GAUGE_NEEDLE: str = "#FFFFFF"  # Needle color
     GAUGE_NEEDLE_SHADOW: str = "#000000"  # Needle shadow
 
     # RPM Zone colors
-    RPM_ZONE_NORMAL: str = "#9EFF11"      # Normal RPM range
-    RPM_ZONE_WARNING: str = "#FFAA00"     # Near shift point
-    RPM_ZONE_REDLINE: str = "#FF0000"     # Redline zone
+    RPM_ZONE_NORMAL: str = "#9EFF11"  # Normal RPM range
+    RPM_ZONE_WARNING: str = "#FFAA00"  # Near shift point
+    RPM_ZONE_REDLINE: str = "#FF0000"  # Redline zone
 
     # Boost gauge colors
-    BOOST_VACUUM: str = "#00AAFF"         # Vacuum (negative boost)
-    BOOST_ATMOSPHERE: str = "#888888"     # Atmospheric
-    BOOST_POSITIVE: str = "#9EFF11"       # Positive boost
+    BOOST_VACUUM: str = "#00AAFF"  # Vacuum (negative boost)
+    BOOST_ATMOSPHERE: str = "#888888"  # Atmospheric
+    BOOST_POSITIVE: str = "#9EFF11"  # Positive boost
 
     # =========================================================================
     # Widget Colors
     # =========================================================================
 
-    BOX_BACKGROUND: str = "#1A1A1A"       # Metric box background
-    BOX_BORDER: str = "#333333"           # Metric box border
-    BOX_LABEL: str = "#888888"            # Metric box label
-    BOX_VALUE: str = "#FFFFFF"            # Metric box value
+    BOX_BACKGROUND: str = "#1A1A1A"  # Metric box background
+    BOX_BORDER: str = "#333333"  # Metric box border
+    BOX_LABEL: str = "#888888"  # Metric box label
+    BOX_VALUE: str = "#FFFFFF"  # Metric box value
 
     # =========================================================================
     # Shift Light Colors
     # =========================================================================
 
-    SHIFT_LIGHT_OFF: str = "#333333"      # LED off
-    SHIFT_LIGHT_GREEN: str = "#9EFF11"    # Green segment
-    SHIFT_LIGHT_YELLOW: str = "#FFAA00"   # Yellow segment
-    SHIFT_LIGHT_RED: str = "#FF0000"      # Red segment
-    SHIFT_LIGHT_FLASH: str = "#FFFFFF"    # Flash color at redline
+    SHIFT_LIGHT_OFF: str = "#333333"  # LED off
+    SHIFT_LIGHT_GREEN: str = "#9EFF11"  # Green segment
+    SHIFT_LIGHT_YELLOW: str = "#FFAA00"  # Yellow segment
+    SHIFT_LIGHT_RED: str = "#FF0000"  # Red segment
+    SHIFT_LIGHT_FLASH: str = "#FFFFFF"  # Flash color at redline
 
     # =========================================================================
     # Helper Methods
@@ -110,9 +110,9 @@ class RobotechyDarkTheme:
             List of (start_pct, end_pct, color) tuples.
         """
         return [
-            (0.0, 0.75, self.RPM_ZONE_NORMAL),    # 0-75%: Green
+            (0.0, 0.75, self.RPM_ZONE_NORMAL),  # 0-75%: Green
             (0.75, 0.85, self.RPM_ZONE_WARNING),  # 75-85%: Yellow
-            (0.85, 1.0, self.RPM_ZONE_REDLINE),   # 85-100%: Red
+            (0.85, 1.0, self.RPM_ZONE_REDLINE),  # 85-100%: Red
         ]
 
     def get_boost_colors(self) -> Dict[str, str]:
@@ -123,7 +123,9 @@ class RobotechyDarkTheme:
             "boost": self.BOOST_POSITIVE,
         }
 
-    def get_temperature_color(self, value: float, warning: float, critical: float) -> str:
+    def get_temperature_color(
+        self, value: float, warning: float, critical: float
+    ) -> str:
         """
         Get color for temperature value.
 
@@ -142,10 +144,7 @@ class RobotechyDarkTheme:
         return self.NORMAL
 
     def get_pressure_color(
-        self,
-        value: float,
-        warning_low: float = None,
-        warning_high: float = None
+        self, value: float, warning_low: float = None, warning_high: float = None
     ) -> str:
         """
         Get color for pressure value.

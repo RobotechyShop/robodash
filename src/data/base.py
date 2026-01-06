@@ -17,6 +17,7 @@ from .models import VehicleState
 # Combined metaclass to resolve QObject + ABC conflict
 class QObjectABCMeta(wrappertype, ABCMeta):
     """Metaclass combining PyQt5's wrappertype with ABCMeta."""
+
     pass
 
 

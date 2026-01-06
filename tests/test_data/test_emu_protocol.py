@@ -1,7 +1,6 @@
 """Tests for EMU Black protocol decoder."""
 
 import struct
-import pytest
 
 from src.data.emu_protocol import EMUProtocolDecoder
 from src.data.models import VehicleState

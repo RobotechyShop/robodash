@@ -7,11 +7,11 @@ Provides:
 - RPMBar: Horizontal RPM bar with shift zones
 """
 
-from typing import Optional, List, Tuple
+from typing import List, Optional, Tuple
 
+from PyQt5.QtCore import QRect, QRectF, Qt
+from PyQt5.QtGui import QBrush, QColor, QFont, QLinearGradient, QPainter
 from PyQt5.QtWidgets import QWidget
-from PyQt5.QtCore import Qt, QRect, QRectF
-from PyQt5.QtGui import QPainter, QPen, QBrush, QColor, QLinearGradient, QFont
 
 from .base_widget import BaseWidget, get_custom_font
 
@@ -103,7 +103,7 @@ class BarGauge(BaseWidget):
             rect.left(),
             rect.top() + label_height,
             rect.width() - value_width - 5,
-            self._bar_height
+            self._bar_height,
         )
 
         # Draw background
@@ -115,10 +115,7 @@ class BarGauge(BaseWidget):
         fill_width = int(bar_rect.width() * self.value_percent)
         if fill_width > 0:
             fill_rect = QRect(
-                bar_rect.left(),
-                bar_rect.top(),
-                fill_width,
-                bar_rect.height()
+                bar_rect.left(), bar_rect.top(), fill_width, bar_rect.height()
             )
 
             # Use zones or single color
@@ -148,12 +145,10 @@ class BarGauge(BaseWidget):
                 rect.right() - value_width,
                 bar_rect.top(),
                 value_width,
-                bar_rect.height()
+                bar_rect.height(),
             )
             painter.drawText(
-                value_rect,
-                Qt.AlignRight | Qt.AlignVCenter,
-                self.get_display_text()
+                value_rect, Qt.AlignRight | Qt.AlignVCenter, self.get_display_text()
             )
 
     def _draw_vertical(self, painter: QPainter, rect: QRect) -> None:
@@ -166,7 +161,7 @@ class BarGauge(BaseWidget):
             rect.left() + (rect.width() - self._bar_height) // 2,
             rect.top() + label_height,
             self._bar_height,
-            rect.height() - label_height - value_height - 5
+            rect.height() - label_height - value_height - 5,
         )
 
         # Draw background
@@ -181,7 +176,7 @@ class BarGauge(BaseWidget):
                 bar_rect.left(),
                 bar_rect.bottom() - fill_height,
                 bar_rect.width(),
-                fill_height
+                fill_height,
             )
             painter.setBrush(QBrush(QColor(self.get_value_color_hex())))
             painter.drawRoundedRect(fill_rect, 3, 3)
@@ -203,18 +198,12 @@ class BarGauge(BaseWidget):
             painter.setPen(self.get_value_color())
 
             value_rect = QRect(
-                rect.left(),
-                rect.bottom() - value_height,
-                rect.width(),
-                value_height
+                rect.left(), rect.bottom() - value_height, rect.width(), value_height
             )
             painter.drawText(value_rect, Qt.AlignCenter, self.get_formatted_value())
 
     def _draw_zoned_fill(
-        self,
-        painter: QPainter,
-        bar_rect: QRect,
-        fill_rect: QRect
+        self, painter: QPainter, bar_rect: QRect, fill_rect: QRect
     ) -> None:
         """Draw fill with colored zones."""
         # Create gradient based on zones
@@ -298,7 +287,9 @@ class RPMBar(BarGauge):
             bar_height = min_bar_height + (max_bar_height - min_bar_height) * progress
 
             seg_x = padding + i * segment_width + segment_gap / 2
-            seg_y = rect.height() - marker_space - bar_height  # Position from marker area
+            seg_y = (
+                rect.height() - marker_space - bar_height
+            )  # Position from marker area
             seg_w = segment_width - segment_gap
             seg_h = bar_height
 
@@ -337,9 +328,7 @@ class RPMBar(BarGauge):
         for rpm in range(0, 9000, 1000):
             x = padding + (rpm / 8000) * bar_width
             painter.drawText(
-                QRectF(x - 18, marker_y, 36, 25),
-                Qt.AlignCenter,
-                str(rpm // 1000)
+                QRectF(x - 18, marker_y, 36, 25), Qt.AlignCenter, str(rpm // 1000)
             )
 
         painter.end()
@@ -383,7 +372,7 @@ class FuelBar(BaseWidget):
         painter.drawText(
             QRectF(padding, 2, 60, label_height),
             Qt.AlignLeft | Qt.AlignVCenter,
-            self._label
+            self._label,
         )
 
         # Bar area - full width
@@ -391,7 +380,7 @@ class FuelBar(BaseWidget):
             padding,
             label_height + 5,
             rect.width() - padding * 2,
-            rect.height() - label_height - 10
+            rect.height() - label_height - 10,
         )
 
         # Draw bar background
@@ -403,10 +392,7 @@ class FuelBar(BaseWidget):
         fill_width = bar_rect.width() * self.value_percent
         if fill_width > 0:
             fill_rect = QRectF(
-                bar_rect.left(),
-                bar_rect.top(),
-                fill_width,
-                bar_rect.height()
+                bar_rect.left(), bar_rect.top(), fill_width, bar_rect.height()
             )
 
             # Color based on level (10% red, 25% amber)
@@ -426,10 +412,6 @@ class FuelBar(BaseWidget):
         painter.setFont(value_font)
         painter.setPen(QColor("#FFFFFF"))
 
-        painter.drawText(
-            bar_rect,
-            Qt.AlignCenter,
-            f"{int(self._value)}%"
-        )
+        painter.drawText(bar_rect, Qt.AlignCenter, f"{int(self._value)}%")
 
         painter.end()

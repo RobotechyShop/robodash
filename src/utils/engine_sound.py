@@ -9,9 +9,8 @@ the characteristic inline-6 exhaust note.
 """
 
 import logging
-import math
-from typing import Optional
 import threading
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -21,8 +20,9 @@ BUFFER_SIZE = 2048
 
 # Try to import pygame and numpy
 try:
-    import pygame
     import numpy as np
+    import pygame
+
     AUDIO_AVAILABLE = True
 except ImportError:
     AUDIO_AVAILABLE = False
@@ -71,7 +71,7 @@ class EngineSoundSynthesizer:
                 frequency=SAMPLE_RATE,
                 size=-16,  # 16-bit signed
                 channels=1,  # Mono
-                buffer=BUFFER_SIZE
+                buffer=BUFFER_SIZE,
             )
             pygame.mixer.init()
             self._enabled = True
@@ -89,10 +89,7 @@ class EngineSoundSynthesizer:
         self._phase = 0.0
 
         # Start the sound generation thread
-        self._audio_thread = threading.Thread(
-            target=self._audio_loop,
-            daemon=True
-        )
+        self._audio_thread = threading.Thread(target=self._audio_loop, daemon=True)
         self._audio_thread.start()
         logger.info("Engine sound started")
 
@@ -238,14 +235,14 @@ class EngineSoundSynthesizer:
         # Harmonic amplitudes (tuned for meaty 2JZ-GTE turbo sound)
         # More bass, deeper exhaust note
         harmonics = [
-            (0.25, 0.5),   # Deep sub-bass
-            (0.5, 0.7),    # Sub-harmonic for low-end rumble
-            (1.0, 1.0),    # Fundamental
-            (1.5, 0.4),    # Between fundamental and 2nd
-            (2.0, 0.5),    # 2nd harmonic
-            (3.0, 0.25),   # 3rd harmonic
-            (4.0, 0.15),   # 4th harmonic
-            (6.0, 0.1),    # Higher overtone
+            (0.25, 0.5),  # Deep sub-bass
+            (0.5, 0.7),  # Sub-harmonic for low-end rumble
+            (1.0, 1.0),  # Fundamental
+            (1.5, 0.4),  # Between fundamental and 2nd
+            (2.0, 0.5),  # 2nd harmonic
+            (3.0, 0.25),  # 3rd harmonic
+            (4.0, 0.15),  # 4th harmonic
+            (6.0, 0.1),  # Higher overtone
         ]
 
         for harmonic_mult, amplitude in harmonics:
@@ -263,7 +260,9 @@ class EngineSoundSynthesizer:
         samples *= am
 
         # Add turbo whoosh at higher RPM
-        rpm_factor = max(0, (self._rpm - self.IDLE_RPM) / (self.REDLINE_RPM - self.IDLE_RPM))
+        rpm_factor = max(
+            0, (self._rpm - self.IDLE_RPM) / (self.REDLINE_RPM - self.IDLE_RPM)
+        )
         if rpm_factor > 0.3:
             turbo_freq = 80 + rpm_factor * 120  # Turbo whine
             turbo_wave = np.sin(2 * np.pi * turbo_freq * t) * 0.15 * (rpm_factor - 0.3)

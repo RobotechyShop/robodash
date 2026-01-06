@@ -25,8 +25,8 @@ import logging
 import sys
 from pathlib import Path
 
-from .core.config import Config
 from .core.app import DashboardApp
+from .core.config import Config
 
 
 def setup_logging(debug: bool = False) -> None:
@@ -44,7 +44,7 @@ def setup_logging(debug: bool = False) -> None:
         format=format_str,
         handlers=[
             logging.StreamHandler(sys.stdout),
-        ]
+        ],
     )
 
     # Reduce noise from Qt
@@ -70,45 +70,37 @@ Examples:
     python -m src.main --debug          # Enable debug logging
 
 Reference: https://github.com/valtsu23/DIY-Emu-Black-Dash
-        """
+        """,
     )
 
     parser.add_argument(
         "--mock",
         action="store_true",
-        help="Use mock data source (simulated vehicle data)"
+        help="Use mock data source (simulated vehicle data)",
     )
 
     parser.add_argument(
         "--sound",
         action="store_true",
-        help="Enable synthesized engine sound (mock mode only)"
+        help="Enable synthesized engine sound (mock mode only)",
     )
 
     parser.add_argument(
         "--config",
         type=Path,
         default=None,
-        help="Path to configuration file (default: config/default.yaml)"
+        help="Path to configuration file (default: config/default.yaml)",
     )
 
     parser.add_argument(
         "--windowed",
         action="store_true",
-        help="Run in windowed mode instead of fullscreen"
+        help="Run in windowed mode instead of fullscreen",
     )
 
-    parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Enable debug logging"
-    )
+    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
 
-    parser.add_argument(
-        "--version",
-        action="version",
-        version="RoboDash 1.0.0"
-    )
+    parser.add_argument("--version", action="version", version="RoboDash 1.0.0")
 
     return parser.parse_args()
 

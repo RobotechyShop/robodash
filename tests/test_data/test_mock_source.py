@@ -1,8 +1,5 @@
 """Tests for mock data source."""
 
-import pytest
-from PyQt5.QtCore import QSignalSpy
-
 from src.data.mock_source import MockDataSource
 from src.data.models import VehicleState
 

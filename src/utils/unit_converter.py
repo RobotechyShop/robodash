@@ -11,9 +11,12 @@ happens at the display layer based on user preferences.
 """
 
 from dataclasses import dataclass
-from typing import Union
+from typing import TYPE_CHECKING
 
 from ..core.constants import Units
+
+if TYPE_CHECKING:
+    from ..data.models import VehicleState
 
 
 @dataclass
@@ -230,10 +233,3 @@ class UnitConverter:
     def convert_pressure_threshold(self, bar: float) -> float:
         """Convert pressure threshold for gauge configuration."""
         return self.convert_pressure(bar)
-
-
-# Type alias for VehicleState import
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ..data.models import VehicleState

@@ -2,8 +2,8 @@
 
 import pytest
 
-from src.layouts.race_layout import RaceLayout
 from src.data.models import VehicleState
+from src.layouts.race_layout import RaceLayout
 
 
 class TestRaceLayout:
@@ -81,7 +81,7 @@ class TestRaceLayout:
 
     def test_correct_dimensions(self, qtbot):
         """Layout should have correct dimensions for screen."""
-        from src.core.constants import SCREEN_WIDTH, SCREEN_HEIGHT
+        from src.core.constants import SCREEN_HEIGHT, SCREEN_WIDTH
 
         layout = RaceLayout()
         qtbot.addWidget(layout)
@@ -90,7 +90,9 @@ class TestRaceLayout:
         assert layout.height() == SCREEN_HEIGHT
 
     @pytest.mark.screenshot
-    def test_layout_screenshot_normal(self, qtbot, sample_vehicle_state, capture_screenshot):
+    def test_layout_screenshot_normal(
+        self, qtbot, sample_vehicle_state, capture_screenshot
+    ):
         """Capture screenshot of layout in normal state."""
         layout = RaceLayout()
         layout.resize(1920, 360)
@@ -104,7 +106,9 @@ class TestRaceLayout:
         assert path.exists()
 
     @pytest.mark.screenshot
-    def test_layout_screenshot_warning(self, qtbot, warning_vehicle_state, capture_screenshot):
+    def test_layout_screenshot_warning(
+        self, qtbot, warning_vehicle_state, capture_screenshot
+    ):
         """Capture screenshot with warning conditions."""
         layout = RaceLayout()
         layout.resize(1920, 360)

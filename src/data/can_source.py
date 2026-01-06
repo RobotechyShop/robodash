@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 # Try to import python-can, handle gracefully if not available
 try:
     import can
+
     CAN_AVAILABLE = True
 except ImportError:
     CAN_AVAILABLE = False
@@ -114,9 +115,7 @@ class CANDataSource(DataSource):
 
             # Start reader thread
             self._thread = threading.Thread(
-                target=self._read_loop,
-                daemon=True,
-                name="CAN-Reader"
+                target=self._read_loop, daemon=True, name="CAN-Reader"
             )
             self._thread.start()
 
@@ -176,8 +175,7 @@ class CANDataSource(DataSource):
 
                 # Process message through decoder
                 state = self._decoder.process_message(
-                    msg.arbitration_id,
-                    bytes(msg.data)
+                    msg.arbitration_id, bytes(msg.data)
                 )
 
                 if state:
@@ -234,6 +232,7 @@ def get_available_interfaces() -> list:
     try:
         # Check for socketcan interfaces on Linux
         import os
+
         if os.path.exists("/sys/class/net"):
             for iface in os.listdir("/sys/class/net"):
                 if iface.startswith("can") or iface.startswith("vcan"):
