@@ -211,8 +211,7 @@ class MockDataSource(DataSource):
                 # Quick lift
                 self._throttle = max(0, self._throttle - 300 * dt)
             else:
-                # Gradual coast
-                target = 10 + cycle * 20  # 10-30%
+                # Gradual coast down to idle
                 self._throttle = max(0, self._throttle - 150 * dt)
 
             # More likely to accelerate again if speed/rpm is low
